@@ -38,4 +38,30 @@ class SiiController extends Controller
             return \sasco\LibreDTE\Log::readAll();
         }
     }
+    public function actionEstadoDte()
+    {
+        $cliente = new SiiClient();
+        $cliente->ObtenerSemilla();
+        $token = $cliente->ObtenerToken();
+                // consultar estado dte
+        $xml = \sasco\LibreDTE\Sii::request('QueryEstDte', 'getEstDte', [
+            'RutConsultante'    => '',
+            'DvConsultante'     => '',
+            'RutCompania'       => '',
+            'DvCompania'        => '',
+            'RutReceptor'       => '',
+            'DvReceptor'        => '',
+            'TipoDte'           => '',
+            'FolioDte'          => '',
+            'FechaEmisionDte'   => '',
+            'MontoDte'          => '',
+            'token'             => $token,
+        ]);
+
+        // si el estado se pudo recuperar se muestra
+        if ($xml!==false) {
+            return (array)$xml->xpath('/SII:RESPUESTA/SII:RESP_HDR')[0];
+        }
+        return "no esntró";
+    }
 }
