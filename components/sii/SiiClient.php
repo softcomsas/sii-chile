@@ -204,7 +204,7 @@ class SiiClient
 
     public function consulta_dte($rut, $dv, $trackID)
     {
-        $estado = \sasco\LibreDTE\Sii::request('QueryEstUp', 'getEstUp', [$rut, $dv, $trackID, $token]);
+        $estado = \sasco\LibreDTE\Sii::request('QueryEstUp', 'getEstUp', [$rut, $dv, $trackID, $this->token]);
 
         // si el estado se pudo recuperar se muestra estado y glosa
         if ($estado !== false) {
