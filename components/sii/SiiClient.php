@@ -17,7 +17,7 @@ class SiiClient
     public $semilla;
     public $token;
 
-    public $sw_produccion = 0;
+    public $sw_produccion = 1;
 
     public function ObtenerSemilla()
     {
@@ -99,7 +99,7 @@ class SiiClient
         fclose($ar);
 
         # Calcular la digestion del archivo
-        $digesta = $this->ObtenerDigestion($url_archivo = "semilla_porfirmar.xml");
+        $digesta = $this->ObtenerDigestion("semilla_porfirmar.xml");
 
         # plantilla 
         $firmador = '<SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>' . $digesta . '</DigestValue></Reference></SignedInfo>';
@@ -120,7 +120,7 @@ class SiiClient
 
         # DOCUMENTO FIRMADO
         $semilla_firmada = '<?xml version="1.0" encoding="ISO-8859-1"?>
-    <getToken><item><Semilla>' . $semilla . '</Semilla></item>' . $signature_docto . '</getToken>';
+        <getToken><item><Semilla>' . $semilla . '</Semilla></item>' . $signature_docto . '</getToken>';
 
         # guardar el elemento set para calcular su digesta
         $archivo = fopen(Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . 'semilla_firmada.xml', "w") or die("ERROR");

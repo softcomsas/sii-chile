@@ -40,26 +40,30 @@ class SiiController extends Controller
     }
     public function actionEstadoDte()
     {
-        \sasco\LibreDTE\Sii::setAmbiente( \sasco\LibreDTE\Sii::CERTIFICACION);
-        $cliente = new SiiClient();
-        $cliente->ObtenerSemilla();
-        $token = $cliente->ObtenerToken();
-        $respuesta = [ 'token' => $token];
+        \sasco\LibreDTE\Sii::setAmbiente(\sasco\LibreDTE\Sii::PRODUCCION);
+
+        // solicitar token
+        $token = \sasco\LibreDTE\Sii\Autenticacion::getToken(Yii::$app->params['config']);
+
+        $respuesta = ['token' => $token];
         $params = Yii::$app->params;
+
         // consultar estado dte
         $xml = \sasco\LibreDTE\Sii::request('QueryEstDte', 'getEstDte', [
-            /*'RutConsultante'    => $params['sii_rut'],
-            'DvConsultante'     => $params['sii_dv'],*/
-            'RutCompania'    => $params['sii_rut'],
-            'DvCompania'     => $params['sii_dv'],
-            /*'RutCompania'       => '',
+            'RutConsultante'    => $params['sii_rut'],
+            // 'RutConsultante'    => '',
+            'DvConsultante'     => $params['sii_dv'],
+            // 'DvConsultante'     => '',
+            // 'RutCompania'       => $params['sii_rut'],
+            'RutCompania'       => '',
+            // 'DvCompania'     => $params['sii_dv'],
             'DvCompania'        => '',
             'RutReceptor'       => '',
             'DvReceptor'        => '',
             'TipoDte'           => '',
-            'FolioDte'          => '',
+            'FolioDte'          => '16865',
             'FechaEmisionDte'   => '',
-            'MontoDte'          => '',*/
+            'MontoDte'          => '',
             'token'             => $token,
         ]);
 
@@ -69,7 +73,7 @@ class SiiController extends Controller
         }
         return $respuesta;
     }
-    public function actionEstadoDteEnviado($trackID = '' )
+    public function actionEstadoDteEnviado($trackID = '')
     {
         $cliente = new SiiClient();
         $cliente->ObtenerSemilla();
@@ -89,5 +93,13 @@ class SiiController extends Controller
         }
 
         return "no esntró";
+    }
+    public function actionObtenerToken()
+    {
+        $token = \sasco\LibreDTE\Sii\Autenticacion::getToken(Yii::$app->params['config']);
+
+        return [
+            'token' => $token
+        ];
     }
 }
