@@ -11,6 +11,8 @@ $config = [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
+        '@processed' => '@app/upload/processed',
+        '@unprocessed' => '@app/upload/unprocessed',
     ],
     'components' => [
         'request' => [
@@ -25,11 +27,11 @@ $config = [
             'class' => 'yii\web\Response',
             'format' => yii\web\Response::FORMAT_JSON,
             'on beforeSend' => function ($event) {
-                $controlador = explode('/', Yii::$app->requestedRoute);
+               /* $controlador = explode('/', Yii::$app->requestedRoute);
                 if (!$controlador || in_array($controlador[0], ['gii', 'debug', 'site'])) {
                     Yii::$app->getResponse()->format = yii\web\Response::FORMAT_HTML;
                     return;
-                }
+                }*/
             },
             'charset' => 'UTF-8',
         ],

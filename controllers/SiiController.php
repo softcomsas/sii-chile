@@ -2,9 +2,10 @@
 
 namespace  app\controllers;
 
-use app\components\sii\SiiClient;
 use Yii;
 use yii\rest\Controller;
+use app\models\ProcessDTE;
+use app\components\sii\SiiClient;
 
 class SiiController extends Controller
 {
@@ -15,6 +16,10 @@ class SiiController extends Controller
             'semilla' => $cliente->ObtenerSemilla(),
             'token' => $cliente->ObtenerToken(),
         ];
+    }
+    public function actionProcess()
+    {
+        return ProcessDTE::process();
     }
     public function actionToken()
     {

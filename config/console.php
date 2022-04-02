@@ -13,6 +13,8 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
         '@tests' => '@app/tests',
+        '@processed' => '@app/upload/processed',
+        '@unprocessed' => '@app/upload/unprocessed',
     ],
     'components' => [
         'cache' => [

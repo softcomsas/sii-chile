@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link http://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -7,8 +8,9 @@
 
 namespace app\commands;
 
-use yii\console\Controller;
+use Yii;
 use yii\console\ExitCode;
+use yii\console\Controller;
 
 /**
  * This command echoes the first argument that you have entered.
@@ -29,6 +31,11 @@ class HelloController extends Controller
     {
         echo $message . "\n";
 
+        return ExitCode::OK;
+    }
+    public function actionProcessed()
+    {
+       
         return ExitCode::OK;
     }
 }
