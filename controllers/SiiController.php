@@ -6,20 +6,18 @@ use Yii;
 use yii\rest\Controller;
 use app\models\ProcessDTE;
 use app\components\sii\SiiClient;
+use app\models\Factura;
 
 class SiiController extends Controller
 {
-    public function actionLogin()
-    {
-        $cliente = new SiiClient();
-        return [
-            'semilla' => $cliente->ObtenerSemilla(),
-            'token' => $cliente->ObtenerToken(),
-        ];
-    }
     public function actionProcess()
     {
-        return ProcessDTE::process();
+        ProcessDTE::descargarAdjuntos();
+        return ProcessDTE::runProcess();
+    }
+    public function actionFacturas()
+    {
+        return Factura::search(Yii::$app->request->queryParams);
     }
     public function actionToken()
     {

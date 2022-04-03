@@ -10,6 +10,7 @@ namespace app\commands;
 
 use Yii;
 use yii\console\ExitCode;
+use app\models\ProcessDTE;
 use yii\console\Controller;
 
 /**
@@ -20,7 +21,7 @@ use yii\console\Controller;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class HelloController extends Controller
+class CronController extends Controller
 {
     /**
      * This command echoes what you have entered as the message.
@@ -33,8 +34,10 @@ class HelloController extends Controller
 
         return ExitCode::OK;
     }
-    public function actionProcessed()
+    public function actionProcess()
     {
+        ProcessDTE::descargarAdjuntos();
+        ProcessDTE::runProcess();
        
         return ExitCode::OK;
     }
