@@ -151,14 +151,13 @@ class ProcessDTE
                 'TasaIVA'  => $datos['Encabezado']['Totales']['TasaIVA'],
                 'IVA'  => $datos['Encabezado']['Totales']['IVA'],
                 'MntTotal'  => $datos['Encabezado']['Totales']['MntTotal'],
-                'NmbItem'  => $datos['Detalle']['NmbItem'],
-                'QtyItem'  => $datos['Detalle']['QtyItem'],
-                'UnmdItem'  => $datos['Detalle']['UnmdItem'],
-                'PrcItem'  => $datos['Detalle']['PrcItem'],
-                'MontoItem'  => $datos['Detalle']['MontoItem'],
+                'Detalles'  => $datos['Detalle']
             ]);
+            //$factura->Detalles = 
             $factura->save();
         }
+        print_r($Docs);
+        return 0;
         $dir = Yii::getAlias('@processed') . DIRECTORY_SEPARATOR
             . substr($Caratula['TmstFirmaEnv'], 0, 10) . '_' . $Caratula['RutEmisor'] . '_' . $Caratula['RutReceptor'];
 

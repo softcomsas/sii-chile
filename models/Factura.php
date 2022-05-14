@@ -37,14 +37,13 @@ use Yii;
  * @property float|null $TasaIVA
  * @property float|null $IVA
  * @property float|null $MntTotal
- * @property string|null $NmbItem
- * @property float|null $QtyItem
- * @property string|null $UnmdItem
- * @property float|null $PrcItem
- * @property float|null $MontoItem
+ * @property int $estado
+ *
+ * @property FacturaDetalle[] $facturaDetalles
  */
 class Factura extends \yii\db\ActiveRecord
 {
+    public $Detalles;
     /**
      * {@inheritdoc}
      */
@@ -59,14 +58,39 @@ class Factura extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['MntNeto', 'TasaIVA', 'IVA', 'MntTotal', 'QtyItem', 'PrcItem', 'MontoItem'], 'number'],
+            [['MntNeto', 'TasaIVA', 'IVA', 'MntTotal'], 'number'],
+            [['estado'], 'integer'],
             [['id_doc'], 'string', 'max' => 50],
-            [['TipoDTE', 'Folio', 'FchEmis', 'RUTEmisor', 'RUTRecep', 'RUTSolicita', 'UnmdItem'], 'string', 'max' => 10],
+            [['TipoDTE', 'Folio', 'FchEmis', 'RUTEmisor', 'RUTRecep', 'RUTSolicita'], 'string', 'max' => 10],
             [['TpoTranCompra', 'TpoTranVenta', 'FmaPago'], 'string', 'max' => 1],
-            [['RznSocEmisor', 'GiroEmis', 'DirOrigen', 'CmnaOrigen', 'CiudadOrigen', 'RznSocRecep', 'GiroRecep', 'ContactoRecep', 'DirRecep', 'CmnaRecep', 'CiudadRecep', 'NmbItem'], 'string', 'max' => 255],
+            [['RznSocEmisor', 'GiroEmis', 'DirOrigen', 'CmnaOrigen', 'CiudadOrigen', 'RznSocRecep', 'GiroRecep', 'ContactoRecep', 'DirRecep', 'CmnaRecep', 'CiudadRecep'], 'string', 'max' => 255],
             [['TelefonoEmisor', 'Acteco', 'CdgSIISucur'], 'string', 'max' => 20],
             [['CorreoEmisor'], 'string', 'max' => 100],
+            ['Detalles', 'safe'],
         ];
+    }
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        if ($insert) {
+            if (isset($this->Detalles['NroLinDet'])) {
+                $newDetalle = new FacturaDetalle();
+                $newDetalle->id_factura = $this->id;
+                $newDetalle->load($this->Detalles, '');
+                $newDetalle->TpoCodigo = isset($this->Detalles['CdgItem']) ? $this->Detalles['CdgItem']['TpoCodigo'] : '';
+                $newDetalle->VlrCodigo = isset($this->Detalles['CdgItem']) ? $this->Detalles['CdgItem']['VlrCodigo'] : '';
+                $newDetalle->save();
+            }else{
+                foreach ($this->Detalles as $detalle) {
+                    $newDetalle = new FacturaDetalle();
+                    $newDetalle->id_factura = $this->id;
+                    $newDetalle->load($detalle, '');
+                    $newDetalle->TpoCodigo = isset($detalle['CdgItem']) ? $detalle['CdgItem']['TpoCodigo'] : '';
+                    $newDetalle->VlrCodigo = isset($detalle['CdgItem']) ? $detalle['CdgItem']['VlrCodigo'] : '';
+                    $newDetalle->save();
+                }
+            }
+        }
     }
 
     /**
@@ -105,16 +129,13 @@ class Factura extends \yii\db\ActiveRecord
             'TasaIVA' => 'Tasa Iva',
             'IVA' => 'Iva',
             'MntTotal' => 'Mnt Total',
-            'NmbItem' => 'Nmb Item',
-            'QtyItem' => 'Qty Item',
-            'UnmdItem' => 'Unmd Item',
-            'PrcItem' => 'Prc Item',
-            'MontoItem' => 'Monto Item',
+            'estado' => 'Estado',
         ];
     }
     public function fields()
     {
         $fields = parent::fields();
+        $fields['Detalles'] = 'facturaDetalles';
         return $fields;
     }
     public function extraFields()
@@ -161,11 +182,7 @@ class Factura extends \yii\db\ActiveRecord
             'TasaIVA' => ['TasaIVA'],
             'IVA' => ['IVA'],
             'MntTotal' => ['MntTotal'],
-            'NmbItem' => ['like', 'NmbItem'],
-            'QtyItem' => ['QtyItem'],
-            'UnmdItem' => ['like', 'UnmdItem'],
-            'PrcItem' => ['PrcItem'],
-            'MontoItem' => ['MontoItem'],
+            'estado' => ['estado'],
         ];
 
         foreach ($columns as $key => $value) {
@@ -199,4 +216,12 @@ class Factura extends \yii\db\ActiveRecord
     /*
      * Relaciones 
      */
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFacturaDetalles()
+    {
+        return $this->hasMany(FacturaDetalle::class, ['id_factura' => 'id']);
+    }
 }

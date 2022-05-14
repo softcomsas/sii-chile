@@ -43,11 +43,7 @@ class m220402_165006_create_facturas_table extends Migration
             'TasaIVA' => $this->double(),
             'IVA' => $this->double(),
             'MntTotal' => $this->double(),
-            'NmbItem' => $this->string(255),
-            'QtyItem' => $this->double(),
-            'UnmdItem' => $this->string(10),
-            'PrcItem' => $this->double(),
-            'MontoItem' => $this->double(),
+            'estado' => $this->tinyInteger()->notNull()->defaultValue(0),
         ]);
     }
 

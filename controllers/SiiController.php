@@ -15,10 +15,7 @@ class SiiController extends Controller
         ProcessDTE::descargarAdjuntos();
         return ProcessDTE::runProcess();
     }
-    public function actionFacturas()
-    {
-        return Factura::search(Yii::$app->request->queryParams);
-    }
+    
     public function actionToken()
     {
         try {
