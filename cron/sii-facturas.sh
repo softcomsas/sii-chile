@@ -1,3 +1,3 @@
 #!/bin/bash
-php /home/sistema.ayalarepuestos.cl/public_html/backend/yii cron/process
+php /home/sistema.ayalarepuestos.cl/public_html/sii-chile/yii cron/process
 
