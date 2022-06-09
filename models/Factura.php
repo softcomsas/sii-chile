@@ -67,6 +67,7 @@ class Factura extends \yii\db\ActiveRecord
             [['TelefonoEmisor', 'Acteco', 'CdgSIISucur'], 'string', 'max' => 20],
             [['CorreoEmisor'], 'string', 'max' => 100],
             ['Detalles', 'safe'],
+            ['id_doc', 'unique'],
         ];
     }
     public function afterSave($insert, $changedAttributes)

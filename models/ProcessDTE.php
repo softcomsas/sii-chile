@@ -156,8 +156,6 @@ class ProcessDTE
             //$factura->Detalles = 
             $factura->save();
         }
-        print_r($Docs);
-        return 0;
         $dir = Yii::getAlias('@processed') . DIRECTORY_SEPARATOR
             . substr($Caratula['TmstFirmaEnv'], 0, 10) . '_' . $Caratula['RutEmisor'] . '_' . $Caratula['RutReceptor'];
 
