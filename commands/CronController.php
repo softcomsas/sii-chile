@@ -28,7 +28,7 @@ class CronController extends Controller
      * @param string $message the message to be echoed.
      * @return int Exit code
      */
-    public function actionIndex($message = 'hello world')
+    public function actionIndex($message = 'Hola Mundo')
     {
         echo $message . "\n";
 
@@ -36,9 +36,13 @@ class CronController extends Controller
     }
     public function actionProcess()
     {
+        echo "Comienza la carga de facturas desde el mail.\n";
+
         ProcessDTE::descargarAdjuntos();
         ProcessDTE::runProcess();
-       
+
+        echo "Termina la carga de facturas desde el mail.\n";
+
         return ExitCode::OK;
     }
 }
