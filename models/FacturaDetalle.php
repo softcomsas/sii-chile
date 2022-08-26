@@ -38,9 +38,9 @@ class FacturaDetalle extends \yii\db\ActiveRecord
     {
         return [
             [['id_factura'], 'required'],
-            [['id_factura', 'TpoCodigo', 'VlrCodigo'], 'integer'],
+            [['id_factura', 'VlrCodigo'], 'integer'],
             [['QtyItem', 'PrcItem', 'DescuentoPct', 'DescuentoMonto', 'MontoItem'], 'number'],
-            [['NmbItem'], 'string', 'max' => 255],
+            [['NmbItem', 'TpoCodigo'], 'string', 'max' => 255],
             [['UnmdItem'], 'string', 'max' => 10],
             [['id_factura'], 'exist', 'skipOnError' => true, 'targetClass' => Factura::class, 'targetAttribute' => ['id_factura' => 'id']],
         ];
