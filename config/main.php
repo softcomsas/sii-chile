@@ -1,4 +1,5 @@
 <?php
+
 $params = array_merge(
     require __DIR__ . '/params.php',
     require __DIR__ . '/params-local.php'
@@ -60,6 +61,14 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                [
+                    'class' => \yii\rest\UrlRule::class,
+                    'controller' => [
+                        'folio/configuracion'=>'configuracion-folio',
+                        'folio/mantenedor' => 'mantenedor-folio',
+                        'folios-utilizados-mes',
+                    ]
+                ],
                 'GET facturas/<id>/procesada' => 'facturas/procesada',
                 'OPTIONS facturas/<id>/procesada' => 'facturas/options',
                 '<controller:\w+>/<id:\d+>'                           => '<controller>/view',
