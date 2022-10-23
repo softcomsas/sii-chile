@@ -10,10 +10,17 @@ class MantenedorFolioController extends \yii\rest\Controller
 {
     /** @var MantenedorFolio  */
     public $modelClass = MantenedorFolio::class;
+
+    public function getAmbiente()
+    {
+        $ambiente = Yii::$app->request->getHeaders()->get('ambiente', MantenedorFolio::AMBIENTE_PROD);
+        return $ambiente;
+    }
     
     public function actionIndex()
     {
         $params = Yii::$app->request->queryParams;
+        $params['ambiente'] = $this->getAmbiente();
         $dataProvider = $this->modelClass::search($params);
         return $dataProvider;
     }
@@ -27,6 +34,7 @@ class MantenedorFolioController extends \yii\rest\Controller
         ]);
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        $model->ambiente = $this->getAmbiente();
         if ($model->save()) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);
@@ -65,6 +73,7 @@ class MantenedorFolioController extends \yii\rest\Controller
     public function actionSelect()
     {
         $params = Yii::$app->request->queryParams;
+        $params['ambiente'] = $this->getAmbiente();
         $data = $this->modelClass::query($params)
             ->all();
         return $data;

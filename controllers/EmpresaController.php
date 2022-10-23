@@ -4,12 +4,12 @@ namespace app\controllers;
 
 use Yii;
 use yii\web\ServerErrorHttpException;
-use app\models\ConfiguracionFolio;
+use app\models\Empresa;
 
-class ConfiguracionFolioController extends \yii\rest\Controller
+class EmpresaController extends \yii\rest\Controller
 {
-    /** @var ConfiguracionFolio  */
-    public $modelClass = ConfiguracionFolio::class;
+    /** @var Empresa  */
+    public $modelClass = Empresa::class;
     
     public function actionIndex()
     {
@@ -62,13 +62,6 @@ class ConfiguracionFolioController extends \yii\rest\Controller
         Yii::$app->getResponse()->setStatusCode(204);
     }
 
-    public function actionSelect()
-    {
-        $params = Yii::$app->request->queryParams;
-        $data = $this->modelClass::query($params)
-            ->all();
-        return $data;
-    }
 
     public function findModel($id)
     {

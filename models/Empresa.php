@@ -5,32 +5,35 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "configuracion_folio".
+ * This is the model class for table "empresa".
  *
  * @property int $id
- * @property int $multiplicador
- * @property string $rut_empresa
- * @property string $tipo_documento
- * @property int $rango_maximo
- * @property int $total_utilizado
+ * @property string $rut
+ * @property string $razon_social
+ * @property string $giro
+ * @property int|null $ateco
+ * @property string $direccion
+ * @property string $ciudad
  */
-class ConfiguracionFolio extends \yii\db\ActiveRecord
+class Empresa extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'configuracion_folio';
+        return 'empresa';
     }
 
     public function rules()
     {
         return [
-            [['multiplicador', 'rango_maximo', 'total_utilizado'], 'integer'],
-            [['rut_empresa', 'tipo_documento', 'rango_maximo', 'total_utilizado'], 'required'],
-            [['rut_empresa'], 'string', 'max' => 10],
-            [['tipo_documento'], 'string', 'max' => 45],
+            [['rut', 'razon_social', 'giro', 'direccion', 'ciudad'], 'required'],
+            [['ateco'], 'integer'],
+            [['rut'], 'string', 'max' => 10],
+            [['razon_social', 'giro'], 'string', 'max' => 100],
+            [['direccion'], 'string', 'max' => 150],
+            [['ciudad'], 'string', 'max' => 50],
         ];
     }
 
@@ -38,11 +41,12 @@ class ConfiguracionFolio extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'multiplicador' => 'Multiplicador',
-            'rut_empresa' => 'Rut Empresa',
-            'tipo_documento' => 'Tipo Documento',
-            'rango_maximo' => 'Rango Maximo',
-            'total_utilizado' => 'Total Utilizado',
+            'rut' => 'Rut',
+            'razon_social' => 'Razon Social',
+            'giro' => 'Giro',
+            'ateco' => 'Ateco',
+            'direccion' => 'Direccion',
+            'ciudad' => 'Ciudad',
         ];
     }
     public function fields()
@@ -62,11 +66,12 @@ class ConfiguracionFolio extends \yii\db\ActiveRecord
 
         $columns = [
             'id' => ['id'],
-            'multiplicador' => ['multiplicador'],
-            'rut_empresa' => ['like', 'rut_empresa'],
-            'tipo_documento' => ['like', 'tipo_documento'],
-            'rango_maximo' => ['rango_maximo'],
-            'total_utilizado' => ['total_utilizado'],
+            'rut' => ['like', 'rut'],
+            'razon_social' => ['like', 'razon_social'],
+            'giro' => ['like', 'giro'],
+            'ateco' => ['ateco'],
+            'direccion' => ['like', 'direccion'],
+            'ciudad' => ['like', 'ciudad'],
         ];
 
         foreach ($columns as $key => $value) {

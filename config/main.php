@@ -9,6 +9,7 @@ $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    'language' => 'es',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
@@ -64,9 +65,9 @@ $config = [
                 [
                     'class' => \yii\rest\UrlRule::class,
                     'controller' => [
-                        'folio/configuracion'=>'configuracion-folio',
                         'folio/mantenedor' => 'mantenedor-folio',
-                        'folios-utilizados-mes',
+                        'folio/utilizados-mes' => 'folios-utilizados-mes',
+                        'empresa' => 'empresa'
                     ]
                 ],
                 'GET facturas/<id>/procesada' => 'facturas/procesada',
