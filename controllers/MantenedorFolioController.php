@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use yii\web\ServerErrorHttpException;
 use app\models\MantenedorFolio;
+use app\models\SubirCaf;
 
 class MantenedorFolioController extends \yii\rest\Controller
 {
@@ -13,10 +14,10 @@ class MantenedorFolioController extends \yii\rest\Controller
 
     public function getAmbiente()
     {
-        $ambiente = Yii::$app->request->getHeaders()->get('ambiente', MantenedorFolio::AMBIENTE_PROD);
+        $ambiente = Yii::$app->request->getHeaders()->get('ambiente', MantenedorFolio::AMBIENTE_DEV);
         return $ambiente;
     }
-    
+
     public function actionIndex()
     {
         $params = Yii::$app->request->queryParams;
@@ -43,6 +44,23 @@ class MantenedorFolioController extends \yii\rest\Controller
         }
 
         return $model;
+    }
+
+    public function actionSubirCaf()
+    {
+        /** @var \yii\db\ActiveRecord */
+        $model = new SubirCaf();
+
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        $model->ambiente = $this->getAmbiente();
+        if (!$model->validate()) {
+            return $model;
+        }
+
+        $model->subir();
+        $response = Yii::$app->getResponse();
+        $response->setStatusCode(201);
+        return "Caf subido correctamente";
     }
 
     public function actionUpdate($id)
@@ -81,12 +99,11 @@ class MantenedorFolioController extends \yii\rest\Controller
 
     public function findModel($id)
     {
-        $model = $this->modelClass::findOne($id);        
+        $model = $this->modelClass::findOne($id);
 
-        if (!isset($model)) 
+        if (!isset($model))
             throw new \yii\web\NotFoundHttpException("No existe la fila: $id");
 
         return $model;
     }
-
 }

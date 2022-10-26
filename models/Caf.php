@@ -20,6 +20,9 @@ use Yii;
  */
 class Caf extends \yii\db\ActiveRecord
 {
+    const ESTADO_DISPONIBLE = 0;
+    const ESTADO_EN_USO = 1;
+    const ESTADO_USADO = 2;
     /**
      * {@inheritdoc}
      */
@@ -66,7 +69,8 @@ class Caf extends \yii\db\ActiveRecord
 
     public static function query(array $requestParams)
     {
-        $query = self::find();
+        $query = self::find()
+            ->innerJoinWith('mantenedor m');
 
         $columns = [
             'id' => ['id'],

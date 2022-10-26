@@ -25,6 +25,21 @@ class MantenedorFolio extends \yii\db\ActiveRecord
 {
     const AMBIENTE_DEV = 'DEV';
     const AMBIENTE_PROD = 'PROD';
+
+    const TIPOS_DOCUMENTOS = [
+        33 => "Factura electrónica",
+        34 => "Factura exenta electrónica",
+        39 => "Boleta electrónica",
+        41 => "Boleta exenta electrónica",
+        46 => "Factura de compra electrónica",
+        52 => "Guía de despacho electrónica",
+        56 => "Nota de débito electrónica ",
+        61 => "Nota de crédito electrónica",
+        110 => "Factura de exportación electrónica",
+        111 => "Nota de débito exportación electrónica",
+        112 => "Nota de crédito exportación electrónica",
+    ];
+
     /**
      * {@inheritdoc}
      */

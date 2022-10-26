@@ -2,10 +2,9 @@
 
 namespace  app\controllers;
 
+use app\models\EmitirFactura;
 use Yii;
 use yii\rest\Controller;
-use app\models\ProcessDTE;
-use app\components\sii\SiiClient;
 use app\models\Factura;
 
 class FacturasController extends Controller
@@ -32,5 +31,12 @@ class FacturasController extends Controller
         } else {
             throw new \yii\web\NotFoundHttpException("Factura no encontrada");
         }
+    }
+    public function actionEmitir()
+    {
+        $model = new EmitirFactura();
+        $model->load(Yii::$app->request->post(), '');
+        $model->validate() && $model->emitir();
+        return $model;
     }
 }
