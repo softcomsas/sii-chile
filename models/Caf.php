@@ -41,6 +41,16 @@ class Caf extends \yii\db\ActiveRecord
             [['id_mantenedor'], 'exist', 'skipOnError' => true, 'targetClass' => MantenedorFolio::class, 'targetAttribute' => ['id_mantenedor' => 'id']],
         ];
     }
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave($insert))
+            return false;
+
+            
+        
+        
+        return true;
+    }
 
     public function attributeLabels()
     {

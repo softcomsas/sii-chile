@@ -9,6 +9,11 @@ use app\models\SubirCaf;
 
 class MantenedorFolioController extends \yii\rest\Controller
 {
+    public $serializer = [
+        'class' =>  'yii\rest\Serializer',
+        'collectionEnvelope' => 'items'
+    ];
+    
     /** @var MantenedorFolio  */
     public $modelClass = MantenedorFolio::class;
 

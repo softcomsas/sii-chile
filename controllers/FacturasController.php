@@ -6,6 +6,7 @@ use app\models\EmitirFactura;
 use Yii;
 use yii\rest\Controller;
 use app\models\Factura;
+use app\models\MantenedorFolio;
 
 class FacturasController extends Controller
 {
@@ -36,7 +37,16 @@ class FacturasController extends Controller
     {
         $model = new EmitirFactura();
         $model->load(Yii::$app->request->post(), '');
-        $model->validate() && $model->emitir();
-        return $model;
+        $model->ambiente = $this->getAmbiente();
+        if(!$model->validate())
+            return $model;
+
+        return $model->emitir();
+    }
+
+    public function getAmbiente()
+    {
+        $ambiente = Yii::$app->request->getHeaders()->get('ambiente', MantenedorFolio::AMBIENTE_DEV);
+        return $ambiente;
     }
 }

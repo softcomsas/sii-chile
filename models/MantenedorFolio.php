@@ -158,4 +158,13 @@ class MantenedorFolio extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Caf::class, ['id_mantenedor' => 'id']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCafEnUso()
+    {
+        return $this->hasOne(Caf::class, ['id_mantenedor' => 'id'])
+            ->andOnCondition(['estado' => Caf::ESTADO_EN_USO]);
+    }
 }

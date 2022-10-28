@@ -8,6 +8,10 @@ use app\models\Empresa;
 
 class EmpresaController extends \yii\rest\Controller
 {
+    public $serializer = [
+        'class' =>  'yii\rest\Serializer',
+        'collectionEnvelope' => 'items'
+    ];
     /** @var Empresa  */
     public $modelClass = Empresa::class;
     
