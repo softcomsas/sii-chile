@@ -46,7 +46,7 @@ class Caf extends \yii\db\ActiveRecord
         if(!parent::beforeSave($insert))
             return false;
 
-            
+
         
         
         return true;
@@ -137,5 +137,22 @@ class Caf extends \yii\db\ActiveRecord
     public function getMantenedor()
     {
         return $this->hasOne(MantenedorFolio::class, ['id' => 'id_mantenedor']);
+    }
+
+    public function getFolios()
+    {
+        $fullPath = Caf::getPath() . $this->url_xml;
+        return new \sasco\LibreDTE\Sii\Folios(
+            file_get_contents($fullPath)
+        );
+    }
+
+    public static function getPath()
+    {
+        $path = Yii::getAlias('@app/upload') . '/caf';
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+        return $path . DIRECTORY_SEPARATOR;
     }
 }

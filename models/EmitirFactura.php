@@ -2,10 +2,11 @@
 
 namespace app\models;
 
-use app\traits\DteTrait;
-use sasco\LibreDTE\Sii\Folios;
-use yii\base\DynamicModel;
+use Yii;
 use yii\base\Model;
+use app\traits\DteTrait;
+use yii\base\DynamicModel;
+use sasco\LibreDTE\Sii\Folios;
 
 class EmitirFactura extends Model
 {
@@ -32,6 +33,9 @@ class EmitirFactura extends Model
 
     /** @var Empresa */
     private $_empresa;
+
+    /** @var FacturaEmitida */
+    private $_registro;
 
     public function rules()
     {
@@ -71,7 +75,8 @@ class EmitirFactura extends Model
                 'string'
             ],
             ['rut_empresa', 'validarRutEmpresa'],
-            ['productos', 'validarProducto']
+            ['productos', 'validarProducto'],
+            ['codigo_documento', 'validarFolios'],
         ];
     }
 
@@ -101,33 +106,54 @@ class EmitirFactura extends Model
             $this->addError($attribute, "La empresa no está configurada.");
         }
     }
+    public function validarFolios($attribute, $params)
+    {
+        if (!$this->getMantenedor()) {
+            return $this->addError($attribute, "La empresa no tiene mantenedor para el codigo de documento enviado.");
+        }
+        if (!$this->getCaf()) {
+            return $this->addError($attribute, "El mantenedor del codigo de documento enviado no tiene Caf activos.");
+        }
+        if (!$this->getFolios()) {
+            return $this->addError($attribute, "Error al recuperar los folios.");
+        }
+    }
 
     public function emitir()
     {
+        $this->setAmbienteDesarrollo();
         $factura = $this->generarFactura();
         $caratula = $this->generarCaratula();
-        return [
+        /*return [
             'factura' => $factura,
             'caratula' => $caratula,
-        ];
-        $Firma = $this->getFirma();
-        $Folios = $this->getFolios();
+        ];*/
+        $firma = $this->getFirma();
+        $folios = $this->getFolios();
 
         // generar XML del DTE timbrado y firmado
-        $DTE = new \sasco\LibreDTE\Sii\Dte($factura);
-        $DTE->timbrar($Folios);
-        $DTE->firmar($Firma);
+        $dte = new \sasco\LibreDTE\Sii\Dte($factura);
+        $dte->timbrar($folios);
+        $dte->firmar($firma);
 
         // generar sobre con el envío del DTE y enviar al SII
-        $EnvioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
-        $EnvioDTE->agregar($DTE);
-        $EnvioDTE->setFirma($Firma);
-        $EnvioDTE->setCaratula($caratula);
-        $track_id = $EnvioDTE->enviar();
-        if (!$track_id) {
-            //Ocurrió un error
-            throw new \Exception("Error al Emitir", 1);
+        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
+        $envioDTE->agregar($dte);
+        $envioDTE->setFirma($firma);
+        $envioDTE->setCaratula($caratula);
+        $xml = $envioDTE->generar();
+        $this->guardarRegistro($xml);
+        $trackId = $envioDTE->enviar();
+        if (!$trackId) {
+            $messageError = '';
+            foreach (\sasco\LibreDTE\Log::readAll() as $error) {
+                $messageError .= $error->msg. '\n';
+            }
+            throw new \Exception($messageError, 1);
         }
+        $this->_registro ->trackId = $trackId;
+        $this->_registro ->save();
+        return $trackId;
     }
 
     private function generarFactura()
@@ -174,6 +200,17 @@ class EmitirFactura extends Model
             'NroResol' => 0,
         ];
     }
+    public function guardarRegistro($xml)
+    {
+        $this->_registro = new FacturaEmitida();
+        $this->_registro ->rut_empresa = $this->rut_empresa;
+        $this->_registro ->rut_receptor = $this->rut_receptor;
+        $this->_registro ->fecha = $this->fecha;
+        $fileName = Yii::$app->security->generateRandomString(32) . ".xml";
+        file_put_contents( $this->_registro ->getPath().$fileName, $xml);
+        $this->_registro ->url_xml = $fileName;
+        $this->_registro ->save();
+    }
 
     public function getEmpresa()
     {
@@ -201,5 +238,12 @@ class EmitirFactura extends Model
             $this->_caf =  $this->getMantenedor()->cafEnUso;
         }
         return $this->_caf;
+    }
+    public function getFolios()
+    {
+        if (!$this->_folios) {
+            $this->_folios =  $this->getCaf()->folios;
+        }
+        return $this->_folios;
     }
 }

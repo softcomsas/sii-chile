@@ -18,7 +18,7 @@ trait DteTrait
     public function getToken()
     {
         if (!$this->_token) {
-            $this->_token = \sasco\LibreDTE\Sii\Autenticacion::getToken( Yii::$app->params['config']);
+            $this->_token = \sasco\LibreDTE\Sii\Autenticacion::getToken( $this->getFirma());
             if (!$this->_token) {
                 throw new \Exception("Error al obtener el token DTE.", 1);
                 
@@ -30,7 +30,12 @@ trait DteTrait
     public function getFirma()
     {
         if (!$this->_firma) {
-            $this->_firma = new FirmaElectronica( Yii::$app->params['config']);
+            $params = Yii::$app->params;
+            $firma = [
+                'cert' => $params['sii_cert'],
+                'pkey' => $params['sii_pkey'],
+            ];
+            $this->_firma = new FirmaElectronica( $firma);
             if (!$this->_firma) {
                 throw new \Exception("Error al obtener la Firma.", 1);
                 

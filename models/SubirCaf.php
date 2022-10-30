@@ -35,7 +35,7 @@ class SubirCaf extends Model
     {
         Yii::error(print_r($this->file, true));
         $this->_fileName = Yii::$app->security->generateRandomString(32) . "." . $this->file->extension;
-        $fullPath = $this->path . $this->_fileName;
+        $fullPath = Caf::getPath() . $this->_fileName;
         if (!$this->file->saveAs($fullPath)) {
             return false;
         };
@@ -70,14 +70,6 @@ class SubirCaf extends Model
         Yii::error($model->errors);
     }
 
-    public function getPath()
-    {
-        $path = Yii::getAlias('@app/upload') . '/caf';
-        if (!is_dir($path)) {
-            mkdir($path);
-        }
-        return $path . DIRECTORY_SEPARATOR;
-    }
     public function getMantenedor()
     {
         static $mantenedor;
