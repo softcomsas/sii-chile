@@ -18,8 +18,8 @@
         "yiisoft/yii2": "~2.0.14",
         "yiisoft/yii2-bootstrap4": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
-        "sasco/libredte": "^21.10",
-        "sizeg/yii2-jwt": "^2.0"
+        "sizeg/yii2-jwt": "^2.0",
+        "despeguedigital360/libredte": "^1.1"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
@@ -68,6 +68,10 @@
         {
             "type": "composer",
             "url": "https://asset-packagist.org"
+        },
+        {
+            "url": "https://github.com/softcomsas/libredte-lib-despeguedigital360",
+            "type": "git"
         }
     ]
 }
