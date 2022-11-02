@@ -6,7 +6,9 @@ use app\models\EmitirFactura;
 use Yii;
 use yii\rest\Controller;
 use app\models\Factura;
+use app\models\FacturaEmitida;
 use app\models\MantenedorFolio;
+use yii\web\NotFoundHttpException;
 
 class FacturasController extends Controller
 {
@@ -42,6 +44,16 @@ class FacturasController extends Controller
             return $model;
 
         return $model->emitir();
+    }
+    public function actionPdf($id)
+    {
+        $model = FacturaEmitida::findOne($id);
+        if (!$model) {
+            throw new NotFoundHttpException('Factura no encontrada');
+        }
+        $pdf = $model->getPdf();
+
+        return Yii::$app->response->sendFile($pdf);
     }
 
     public function getAmbiente()
