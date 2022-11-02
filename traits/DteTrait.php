@@ -1,4 +1,5 @@
 <?php
+
 namespace app\traits;
 
 use sasco\LibreDTE\FirmaElectronica;
@@ -18,10 +19,9 @@ trait DteTrait
     public function getToken()
     {
         if (!$this->_token) {
-            $this->_token = \sasco\LibreDTE\Sii\Autenticacion::getToken( $this->getFirma());
+            $this->_token = \sasco\LibreDTE\Sii\Autenticacion::getToken($this->getFirma());
             if (!$this->_token) {
                 throw new \Exception("Error al obtener el token DTE.", 1);
-                
             }
         }
         return $this->_token;
@@ -35,10 +35,9 @@ trait DteTrait
                 'cert' => $params['sii_cert'],
                 'pkey' => $params['sii_pkey'],
             ];
-            $this->_firma = new FirmaElectronica( $firma);
+            $this->_firma = new FirmaElectronica($firma);
             if (!$this->_firma) {
                 throw new \Exception("Error al obtener la Firma.", 1);
-                
             }
         }
         return $this->_firma;
@@ -47,6 +46,8 @@ trait DteTrait
     public function setAmbienteDesarrollo()
     {
         \sasco\LibreDTE\Sii::setAmbiente(\sasco\LibreDTE\Sii::CERTIFICACION);
+        \sasco\LibreDTE\Sii::wsdl('CrSeed');
+        \sasco\LibreDTE\Sii::wsdl('GetTokenFromSeed');
     }
     public function setAmbienteProduccion()
     {
