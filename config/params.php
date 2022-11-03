@@ -5,8 +5,13 @@ return [
     'senderEmail' => 'noreply@example.com',
     'senderName' => 'Example.com mailer',
 
-    #Sii params
-    'sii_cert_file' => '/ruta/al/certificado.p12',
-    'sii_pass' => 'contraseña',
-    'sii_data' => '',
+    //JWT
+    'JWT.SECRET'=> '123456',
+    'JWT.EXPIRE'=> 300,
+
+    //Token
+    'staticToken' => '123456',
+
+    //Firma
+    'config' => [],
 ];

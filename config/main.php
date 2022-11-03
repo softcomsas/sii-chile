@@ -17,6 +17,10 @@ $config = [
         '@unprocessed' => '@app/upload/unprocessed',
     ],
     'components' => [
+        'jwt' => [
+            'class' => \sizeg\jwt\Jwt::class,
+            'key'   => $params['JWT.SECRET'],
+        ],
         'request' => [
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
@@ -29,7 +33,7 @@ $config = [
             'class' => 'yii\web\Response',
             'format' => yii\web\Response::FORMAT_JSON,
             'on beforeSend' => function ($event) {
-               /* $controlador = explode('/', Yii::$app->requestedRoute);
+                /* $controlador = explode('/', Yii::$app->requestedRoute);
                 if (!$controlador || in_array($controlador[0], ['gii', 'debug', 'site'])) {
                     Yii::$app->getResponse()->format = yii\web\Response::FORMAT_HTML;
                     return;
@@ -78,6 +82,24 @@ $config = [
                 'OPTIONS facturas/<id>/procesada' => 'facturas/options',
             ],
         ],
+    ],
+    'as corsFilter' => [
+        'class' => \yii\filters\Cors::class,
+        'cors' => [
+            'Origin' => ['*'],
+            'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            'Access-Control-Request-Headers' => ['*'],
+            'Access-Control-Expose-Headers' => ['*'],
+        ],
+    ],
+    //'as Authenticator' =>[ 'class' => \sizeg\jwt\JwtHttpBearerAuth::class, 'optional' => ['debug/*']],
+    'as Authenticator' => [
+        'class' => \app\components\CompositeAuth::class,
+        'optional' => ['debug/*'],
+        'authMethods' => [
+            \yii\filters\auth\HttpHeaderAuth::class,
+            \sizeg\jwt\JwtHttpBearerAuth::class,
+        ]
     ],
     'params' => $params,
 ];

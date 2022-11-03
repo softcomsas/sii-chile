@@ -15,29 +15,6 @@ class SiiController extends Controller
         ProcessDTE::descargarAdjuntos();
         return ProcessDTE::runProcess();
     }
-    
-    public function actionToken()
-    {
-        try {
-            $params = Yii::$app->params;
-            $firma = [
-                'file' => Yii::getAlias('@app/certificados') . DIRECTORY_SEPARATOR . $params['sii_cert_file'],
-                //'file' => null,
-                'pass' => $params['sii_pass'],
-                'cert' => $params['sii_cert'],
-                'pkey' => $params['sii_pkey'],
-            ];
-            /*if (isset($params['sii_data'])) {
-                $firma['data'] = $params['sii_data'];
-            }*/
-            $token = \sasco\LibreDTE\Sii\Autenticacion::getToken($firma);
-            Yii::error($token, '$token');
-            return $token;
-        } catch (\Throwable $th) {
-            throw $th;
-            return \sasco\LibreDTE\Log::readAll();
-        }
-    }
     public function actionEstadoDte()
     {
         \sasco\LibreDTE\Sii::setAmbiente(\sasco\LibreDTE\Sii::PRODUCCION);

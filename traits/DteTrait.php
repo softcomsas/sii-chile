@@ -30,12 +30,7 @@ trait DteTrait
     public function getFirma()
     {
         if (!$this->_firma) {
-            $params = Yii::$app->params;
-            $firma = [
-                'cert' => $params['sii_cert'],
-                'pkey' => $params['sii_pkey'],
-            ];
-            $this->_firma = new FirmaElectronica($firma);
+            $this->_firma = new FirmaElectronica(Yii::$app->params['config']);
             if (!$this->_firma) {
                 throw new \Exception("Error al obtener la Firma.", 1);
             }
