@@ -93,14 +93,14 @@ $config = [
         ],
     ],
     //'as Authenticator' =>[ 'class' => \sizeg\jwt\JwtHttpBearerAuth::class, 'optional' => ['debug/*']],
-    'as Authenticator' => [
+    /*'as Authenticator' => [
         'class' => \app\components\CompositeAuth::class,
         'optional' => ['debug/*'],
         'authMethods' => [
             \yii\filters\auth\HttpHeaderAuth::class,
             \sizeg\jwt\JwtHttpBearerAuth::class,
         ]
-    ],
+    ],*/
     'params' => $params,
 ];
 
