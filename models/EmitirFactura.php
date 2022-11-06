@@ -124,10 +124,10 @@ class EmitirFactura extends Model
         $this->setAmbienteDesarrollo();
         $factura = $this->generarFactura();
         $caratula = $this->generarCaratula();
-        /*return [
-            'factura' => $factura,
-            'caratula' => $caratula,
-        ];*/
+        // return [
+        //     'factura' => $factura,
+        //     'caratula' => $caratula,
+        // ];
         $firma = $this->getFirma();
         $folios = $this->getFolios();
 
@@ -143,17 +143,19 @@ class EmitirFactura extends Model
         $envioDTE->setCaratula($caratula);
         $xml = $envioDTE->generar();
         $this->guardarRegistro($xml);
-        $trackId = $envioDTE->enviar();
-        if (!$trackId) {
-            $messageError = '';
-            foreach (\sasco\LibreDTE\Log::readAll() as $error) {
-                $messageError .= $error->msg. '\n';
-            }
-            throw new \Exception($messageError, 1);
+        if ($envioDTE->schemaValidate()) {
+            $envioDTE->generar();
+            $track_id = $envioDTE->enviar();
+            $this->_registro->track_id = $track_id;
+            $this->_registro->save();
+            return $track_id;
         }
-        $this->_registro ->trackId = $trackId;
-        $this->_registro ->save();
-        return $trackId;
+
+        $messageError = '';
+        foreach (\sasco\LibreDTE\Log::readAll() as $error) {
+            $messageError .= $error->msg . '\n';
+        }
+        throw new \Exception($messageError, 1);
     }
 
     private function generarFactura()
@@ -203,13 +205,13 @@ class EmitirFactura extends Model
     public function guardarRegistro($xml)
     {
         $this->_registro = new FacturaEmitida();
-        $this->_registro ->rut_empresa = $this->rut_empresa;
-        $this->_registro ->rut_receptor = $this->rut_receptor;
-        $this->_registro ->fecha = $this->fecha;
+        $this->_registro->rut_empresa = $this->rut_empresa;
+        $this->_registro->rut_receptor = $this->rut_receptor;
+        $this->_registro->fecha = $this->fecha;
         $fileName = Yii::$app->security->generateRandomString(32) . ".xml";
-        file_put_contents( $this->_registro ->getPath().$fileName, $xml);
-        $this->_registro ->url_xml = $fileName;
-        $this->_registro ->save();
+        file_put_contents($this->_registro->getPath() . $fileName, $xml);
+        $this->_registro->url_xml = $fileName;
+        $this->_registro->save();
     }
 
     public function getEmpresa()
