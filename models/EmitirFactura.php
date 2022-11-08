@@ -5,6 +5,7 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use app\traits\DteTrait;
+use sasco\LibreDTE\Sii\Dte;
 use yii\base\DynamicModel;
 use sasco\LibreDTE\Sii\Folios;
 
@@ -122,46 +123,31 @@ class EmitirFactura extends Model
     public function emitir()
     {
         $this->setAmbienteDesarrollo();
-        $factura = $this->generarFactura();
-        $caratula = $this->generarCaratula();
-        // return [
-        //     'factura' => $factura,
-        //     'caratula' => $caratula,
-        // ];
+
+        $cuerpo = $this->generarCuerpo();
         $firma = $this->getFirma();
         $folios = $this->getFolios();
-
         // generar XML del DTE timbrado y firmado
-        $dte = new \sasco\LibreDTE\Sii\Dte($factura);
+        $dte = new Dte($cuerpo);
         $dte->timbrar($folios);
         $dte->firmar($firma);
 
-        // generar sobre con el envío del DTE y enviar al SII
-        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
-        $envioDTE->agregar($dte);
-        $envioDTE->setFirma($firma);
-        $envioDTE->setCaratula($caratula);
-        $xml = $envioDTE->generar();
-        $this->guardarRegistro($xml);
-        if ($envioDTE->schemaValidate()) {
-            $envioDTE->generar();
-            $track_id = $envioDTE->enviar();
-            if ($track_id) {
-                $this->_registro->track_id = $track_id;
-                $this->_registro->save(false);
-                $this->getMantenedor()->correrFolio();
-            }
-            return $track_id;
-        }
+        switch ($this->codigo_documento) {
+            case 33:
+                return $this->generarFacturaElectronica($dte);
+                break;
+                
+            case 39:
+                return $this->generarBoletaElectronica($dte);
+                break;
 
-        $messageError = '';
-        foreach (\sasco\LibreDTE\Log::readAll() as $error) {
-            $messageError .= $error->msg . '\n';
+            default:
+                # code...
+                break;
         }
-        throw new \Exception($messageError, 1);
     }
 
-    private function generarFactura()
+    private function generarCuerpo()
     {
         $detalle = [];
         foreach ($this->productos as $key => $producto) {
@@ -198,12 +184,85 @@ class EmitirFactura extends Model
     }
     private function generarCaratula()
     {
-        return [
-            //'RutEnvia' => '11222333-4', // se obtiene de la firma
-            'RutReceptor' => $this->rut_receptor,
-            'FchResol' => $this->fecha,
-            'NroResol' => 0,
-        ];
+        if ($this->codigo_documento == 33) {
+            return [
+                //'RutEnvia' => '11222333-4', // se obtiene de la firma
+                'RutReceptor' => $this->rut_receptor,
+                'FchResol' => $this->fecha,
+                'NroResol' => 0,
+            ];
+        }
+        if ($this->codigo_documento == 39) {
+            return [
+                'RutEmisor' => $this->rut_empresa,
+                'FchResol' => $this->fecha,
+                'NroResol' => 0,
+            ];
+        }
+        return [];
+    }
+
+    public function generarFacturaElectronica(Dte $dte)
+    {
+        $caratula = $this->generarCaratula();
+        $firma = $this->getFirma();
+
+        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
+        $envioDTE->agregar($dte);
+        $envioDTE->setFirma($firma);
+        $envioDTE->setCaratula($caratula);
+        $xml = $envioDTE->generar();
+        if ($envioDTE->schemaValidate()) {
+            $this->guardarRegistro($xml);
+            //$envioDTE->generar();
+            $track_id = $envioDTE->enviar();
+            if ($track_id) {
+                $this->_registro->track_id = $track_id;
+                $this->_registro->save(false);
+                $this->getMantenedor()->correrFolio();
+            }
+            return $track_id;
+        }
+
+        $messageError = '';
+        foreach (\sasco\LibreDTE\Log::readAll() as $error) {
+            $messageError .= $error->msg . '\n';
+        }
+        throw new \Exception($messageError, 1);
+    }
+    public function generarBoletaElectronica(Dte $dte)
+    {
+        $caratula = $this->generarCaratula();
+        $firma = $this->getFirma();
+
+        // crear objeto para consumo de folios
+        $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
+        $ConsumoFolio->setFirma($firma);
+        $ConsumoFolio->setDocumentos([39, 41, 61]);
+
+        // agregar detalle de boleta
+        $ConsumoFolio->agregar($dte->getResumen());
+        $ConsumoFolio->setCaratula($caratula);
+
+        // generar, validar schema y mostrar XML
+        $xml = $ConsumoFolio->generar();
+        if ($ConsumoFolio->schemaValidate()) {
+            //echo $ConsumoFolio->generar();
+            $this->guardarRegistro($xml);
+            $track_id = $ConsumoFolio->enviar();
+            if ($track_id) {
+                $this->_registro->track_id = $track_id;
+                $this->_registro->save(false);
+                $this->getMantenedor()->correrFolio();
+            }
+            return $track_id;
+        }
+
+        $messageError = '';
+        foreach (\sasco\LibreDTE\Log::readAll() as $error) {
+            $messageError .= $error->msg . '\n';
+        }
+        throw new \Exception($messageError, 1);
     }
     public function guardarRegistro($xml)
     {
