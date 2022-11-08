@@ -67,7 +67,9 @@ class FacturasController extends Controller
         }
         $pdf = $model->getPdf();
 
-        return Yii::$app->response->sendFile($pdf);
+        return Yii::$app->response->sendFile($pdf, null, [
+            'inline' => true
+        ]);
     }
 
     public function getAmbiente()
