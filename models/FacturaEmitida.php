@@ -13,6 +13,8 @@ use Yii;
  * @property string $fecha
  * @property string|null $url_xml
  * @property int|null $track_id
+ * @property int|null $folio
+ * @property int|null $tipo
  */
 class FacturaEmitida extends \yii\db\ActiveRecord
 {
@@ -29,7 +31,7 @@ class FacturaEmitida extends \yii\db\ActiveRecord
         return [
             [['rut_empresa', 'rut_receptor', 'fecha'], 'required'],
             [['fecha'], 'safe'],
-            [['track_id'], 'integer'],
+            [['track_id', 'folio', 'tipo'], 'integer'],
             [['rut_empresa', 'rut_receptor'], 'string', 'max' => 10],
             [['url_xml'], 'string', 'max' => 45],
         ];
@@ -66,8 +68,9 @@ class FacturaEmitida extends \yii\db\ActiveRecord
             'rut_empresa' => ['like', 'rut_empresa'],
             'rut_receptor' => ['like', 'rut_receptor'],
             'fecha' => ['like', 'fecha'],
-            'url_xml' => ['like', 'url_xml'],
             'track_id' => ['track_id'],
+            'folio' => ['folio'],
+            'tipo' => ['tipo'],
         ];
 
         foreach ($columns as $key => $value) {

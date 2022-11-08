@@ -66,6 +66,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'GET pdf-factura-emitida' => 'facturas/pdf2',
                 [
                     'class' => \yii\rest\UrlRule::class,
                     'controller' => [
@@ -97,8 +98,9 @@ $config = [
         'class' => \app\components\CompositeAuth::class,
         'optional' => ['debug/*'],
         'authMethods' => [
-            \yii\filters\auth\HttpHeaderAuth::class,
+            \app\components\QueryHashAuth::class,
             \sizeg\jwt\JwtHttpBearerAuth::class,
+            //\yii\filters\auth\HttpHeaderAuth::class,
         ]
     ],*/
     'params' => $params,

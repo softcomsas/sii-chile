@@ -55,6 +55,20 @@ class FacturasController extends Controller
 
         return Yii::$app->response->sendFile($pdf);
     }
+    public function actionPdf2($rut, $tipo, $folio)
+    {
+        $model = FacturaEmitida::selectOne([
+            'rut' => (string) $rut,
+            'tipo' => (int) $tipo,
+            'folio' => (int) $folio,
+        ]);
+        if (!$model) {
+            throw new NotFoundHttpException('Factura no encontrada');
+        }
+        $pdf = $model->getPdf();
+
+        return Yii::$app->response->sendFile($pdf);
+    }
 
     public function getAmbiente()
     {

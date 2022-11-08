@@ -146,8 +146,11 @@ class EmitirFactura extends Model
         if ($envioDTE->schemaValidate()) {
             $envioDTE->generar();
             $track_id = $envioDTE->enviar();
-            $this->_registro->track_id = $track_id;
-            $this->_registro->save();
+            if ($track_id) {
+                $this->_registro->track_id = $track_id;
+                $this->_registro->save(false);
+                $this->getMantenedor()->correrFolio();
+            }
             return $track_id;
         }
 
@@ -210,7 +213,8 @@ class EmitirFactura extends Model
         $this->_registro->fecha = $this->fecha;
         $fileName = Yii::$app->security->generateRandomString(32) . ".xml";
         file_put_contents($this->_registro->getPath() . $fileName, $xml);
-        $this->_registro->url_xml = $fileName;
+        $this->_registro->folio = $this->getMantenedor()->siguiente_folio;
+        $this->_registro->tipo = $this->getMantenedor()->codigo_documento;
         $this->_registro->save();
     }
 

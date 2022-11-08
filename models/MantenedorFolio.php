@@ -167,4 +167,29 @@ class MantenedorFolio extends \yii\db\ActiveRecord
         return $this->hasOne(Caf::class, ['id_mantenedor' => 'id'])
             ->andOnCondition(['estado' => Caf::ESTADO_EN_USO]);
     }
+    public function getSiguienteCaf()
+    {
+        return $this->hasOne(Caf::class, ['id_mantenedor' => 'id'])
+            ->andOnCondition(['estado' => Caf::ESTADO_DISPONIBLE]);
+    }
+
+    public function correrFolio()
+    {
+        $caf = $this->cafEnUso;
+        if ($caf) {
+            if ($this->siguiente_folio < $caf->hasta) {
+                $this->siguiente_folio++;
+                return $this->save(false);
+            }
+            $caf->estado = Caf::ESTADO_USADO;
+            $caf->save();
+        }
+        $nuevoCaf = $this->siguienteCaf;
+        if ($nuevoCaf) {
+            $this->siguiente_folio = $nuevoCaf->desde;
+            return $this->save(false);
+        }
+        $this->siguiente_folio = null;
+        return $this->save(false);
+    }
 }
