@@ -216,6 +216,7 @@ class EmitirFactura extends Model
         $this->_registro->folio = $this->getMantenedor()->siguiente_folio;
         $this->_registro->tipo = $this->getMantenedor()->codigo_documento;
         $this->_registro->save();
+        Yii::error($this->_registro->errors, 'guardarRegistro');
     }
 
     public function getEmpresa()
