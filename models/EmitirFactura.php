@@ -213,6 +213,7 @@ class EmitirFactura extends Model
         $this->_registro->fecha = $this->fecha;
         $fileName = Yii::$app->security->generateRandomString(32) . ".xml";
         file_put_contents($this->_registro->getPath() . $fileName, $xml);
+        $this->_registro->url_xml = $fileName;
         $this->_registro->folio = $this->getMantenedor()->siguiente_folio;
         $this->_registro->tipo = $this->getMantenedor()->codigo_documento;
         $this->_registro->save();
