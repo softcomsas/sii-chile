@@ -19,7 +19,7 @@
         "yiisoft/yii2-bootstrap4": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
         "sizeg/yii2-jwt": "^2.0",
-        "despeguedigital360/libredte": "^1.1"
+        "despeguedigital360/libredte": "@dev"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
