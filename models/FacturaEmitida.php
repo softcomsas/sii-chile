@@ -160,10 +160,11 @@ class FacturaEmitida extends \yii\db\ActiveRecord
             //$pdf->setFooterText();
             //$pdf->setLogo('/home/delaf/www/localhost/dev/pages/sasco/website/webroot/img/logo_mini.png'); // debe ser PNG!
             $pathLogo = Yii::getAlias('@app/upload')
-            . DIRECTORY_SEPARATOR . 'logos-empresas'
-            . DIRECTORY_SEPARATOR;
+                . DIRECTORY_SEPARATOR . 'logos-empresas'
+                . DIRECTORY_SEPARATOR;
             //$pdf->setLogo($pathLogo.'logo_ayala.jpg',1); // debe ser PNG!
-            $pdf->setLogo($pathLogo.'logo2.png',0); // debe ser PNG!
+            $pdf->setLogo($pathLogo . 'logo2.png'); // debe ser PNG!
+            // $pdf->setLogo('C:\xampp\htdocs\sii-chile\upload\logos-empresas\logo_myk.png'); // debe ser PNG!
             $pdf->setResolucion(['FchResol' => $Caratula['FchResol'], 'NroResol' => $Caratula['NroResol']]);
             //$pdf->setCedible(true);
             $pdf->agregar($DTE->getDatos(), $DTE->getTED());
