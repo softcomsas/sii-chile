@@ -182,24 +182,24 @@ class EmitirFactura extends Model
             'Detalle' => $detalle
         ];
     }
-    private function generarCaratula()
+    private function generarCaratula($ignorarTipo = false)
     {
-        if ($this->codigo_documento == 33) {
-            return [
-                //'RutEnvia' => '11222333-4', // se obtiene de la firma
-                'RutReceptor' => $this->rut_receptor,
-                'FchResol' => '2014-12-05',
-                'NroResol' => 80,
-            ];
-        }
-        if ($this->codigo_documento == 39) {
+        if (!$ignorarTipo && $this->codigo_documento == 39) {
             return [
                 'RutEmisor' => $this->rut_empresa,
                 'FchResol' => '2014-12-05',
                 'NroResol' => 80,
             ];
         }
-        return [];
+        //if ($this->codigo_documento == 33) {
+        return [
+            //'RutEnvia' => '11222333-4', // se obtiene de la firma
+            'RutReceptor' => $this->rut_receptor,
+            'FchResol' => '2014-12-05',
+            'NroResol' => 80,
+        ];
+        /*}
+        return [];*/
     }
 
     public function generarFacturaElectronica(Dte $dte)
@@ -212,28 +212,30 @@ class EmitirFactura extends Model
         $envioDTE->setFirma($firma);
         $envioDTE->setCaratula($caratula);
         $xml = $envioDTE->generar();
-        if ($envioDTE->schemaValidate()) {
-            $this->guardarRegistro($xml);
-            //$envioDTE->generar();
-            $track_id = $envioDTE->enviar();
-            if ($track_id) {
-                $this->_registro->track_id = $track_id;
-                $this->_registro->save(false);
-                $this->getMantenedor()->correrFolio();
-            }
-            return $track_id;
-        }
+        if (!$envioDTE->schemaValidate()) $this->handlerError();
 
-        $messageError = '';
-        foreach (\sasco\LibreDTE\Log::readAll() as $error) {
-            $messageError .= $error->msg . '\n';
-        }
-        throw new \Exception($messageError, 1);
+        $this->guardarRegistro($xml);
+        //$envioDTE->generar();
+        $track_id = $envioDTE->enviar();
+        if ($track_id)  $this->handlerError();
+
+        $this->_registro->track_id = $track_id;
+        $this->_registro->save(false);
+        $this->getMantenedor()->correrFolio();
+        return $track_id;
     }
     public function generarBoletaElectronica(Dte $dte)
     {
-        $caratula = $this->generarCaratula();
         $firma = $this->getFirma();
+
+        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
+        $envioDTE->agregar($dte);
+        $envioDTE->setFirma($firma);
+        $envioDTE->setCaratula($this->generarCaratula(true));
+        $xml = $envioDTE->generar();
+        if (!$envioDTE->schemaValidate()) $this->handlerError();
+
+        $this->guardarRegistro($xml);
 
         // crear objeto para consumo de folios
         $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
@@ -242,27 +244,20 @@ class EmitirFactura extends Model
 
         // agregar detalle de boleta
         $ConsumoFolio->agregar($dte->getResumen());
-        $ConsumoFolio->setCaratula($caratula);
+        $ConsumoFolio->setCaratula($this->generarCaratula());
 
         // generar, validar schema y mostrar XML
         $xml = $ConsumoFolio->generar();
-        if ($ConsumoFolio->schemaValidate()) {
-            //echo $ConsumoFolio->generar();
-            $this->guardarRegistro($xml);
-            $track_id = $ConsumoFolio->enviar();
-            if ($track_id) {
-                $this->_registro->track_id = $track_id;
-                $this->_registro->save(false);
-                $this->getMantenedor()->correrFolio();
-            }
-            return $track_id;
-        }
+        if (!$ConsumoFolio->schemaValidate()) $this->handlerError();
 
-        $messageError = '';
-        foreach (\sasco\LibreDTE\Log::readAll() as $error) {
-            $messageError .= $error->msg . '\n';
-        }
-        throw new \Exception($messageError, 1);
+        $track_id = $ConsumoFolio->enviar();
+        //if ($track_id)  $this->handlerError();
+
+        $this->_registro->track_id = $track_id;
+        $this->_registro->save(false);
+        $this->getMantenedor()->correrFolio();
+
+        return $track_id;
     }
     public function guardarRegistro($xml)
     {
@@ -312,5 +307,13 @@ class EmitirFactura extends Model
             $this->_folios =  $this->getCaf()->folios;
         }
         return $this->_folios;
+    }
+    public function handlerError()
+    {
+        $messageError = '';
+        foreach (\sasco\LibreDTE\Log::readAll() as $error) {
+            $messageError .= $error->msg . '\n';
+        }
+        throw new \Exception($messageError, 1);
     }
 }
