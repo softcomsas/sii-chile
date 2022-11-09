@@ -217,7 +217,7 @@ class EmitirFactura extends Model
         $this->guardarRegistro($xml);
         //$envioDTE->generar();
         $track_id = $envioDTE->enviar();
-        if ($track_id)  $this->handlerError();
+        if (!$track_id)  $this->handlerError();
 
         $this->_registro->track_id = $track_id;
         $this->_registro->save(false);
