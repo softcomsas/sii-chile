@@ -136,7 +136,7 @@ class EmitirFactura extends Model
             case 33:
                 return $this->generarFacturaElectronica($dte);
                 break;
-                
+
             case 39:
                 return $this->generarBoletaElectronica($dte);
                 break;
@@ -188,15 +188,15 @@ class EmitirFactura extends Model
             return [
                 //'RutEnvia' => '11222333-4', // se obtiene de la firma
                 'RutReceptor' => $this->rut_receptor,
-                'FchResol' => $this->fecha,
-                'NroResol' => 0,
+                'FchResol' => '2014-12-05',
+                'NroResol' => 80,
             ];
         }
         if ($this->codigo_documento == 39) {
             return [
                 'RutEmisor' => $this->rut_empresa,
-                'FchResol' => $this->fecha,
-                'NroResol' => 0,
+                'FchResol' => '2014-12-05',
+                'NroResol' => 80,
             ];
         }
         return [];
