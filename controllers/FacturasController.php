@@ -26,7 +26,7 @@ class FacturasController extends Controller
     }
     public function actionProcesada($id)
     {
-        $factura = Factura::findOne(['id_doc' =>$id]);
+        $factura = Factura::findOne(['id_doc' => $id]);
         if ($factura) {
             $factura->estado = 1;
             $factura->save();
@@ -40,7 +40,7 @@ class FacturasController extends Controller
         $model = new EmitirFactura();
         $model->load(Yii::$app->request->post(), '');
         $model->ambiente = $this->getAmbiente();
-        if(!$model->validate())
+        if (!$model->validate())
             return $model;
 
         return $model->emitir();
@@ -66,6 +66,20 @@ class FacturasController extends Controller
             throw new NotFoundHttpException('Factura no encontrada');
         }
         $pdf = $model->getPdf();
+
+        return Yii::$app->response->sendFile($pdf, null, [
+            'inline' => true
+        ]);
+    }
+    public function actionGenerarPdf()
+    {
+        $model = new EmitirFactura(['scenario' => EmitirFactura::SCENARIO_NOTA]);
+        $model->load(Yii::$app->request->post(), '');
+        $model->ambiente = $this->getAmbiente();
+        if (!$model->validate())
+            return $model;
+
+        $pdf = $model->generarPdf();
 
         return Yii::$app->response->sendFile($pdf, null, [
             'inline' => true

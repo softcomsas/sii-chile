@@ -20,6 +20,7 @@ class Yii {
 
 /**
  * @property yii\rbac\DbManager $authManager 
+ * @property app\components\PdfGenerator $pdf 
  * @property \yii\web\User|__WebUser $user
  * 
  */

@@ -12,6 +12,9 @@ use sasco\LibreDTE\Sii\Folios;
 class EmitirFactura extends Model
 {
     use DteTrait;
+
+    const SCENARIO_NOTA = 'nota';
+
     public $fecha;
     public $codigo_documento;
     public $rut_empresa;
@@ -77,7 +80,7 @@ class EmitirFactura extends Model
             ],
             ['rut_empresa', 'validarRutEmpresa'],
             ['productos', 'validarProducto'],
-            ['codigo_documento', 'validarFolios'],
+            ['codigo_documento', 'validarFolios', 'except' => [self::SCENARIO_NOTA]],
         ];
     }
 
@@ -258,6 +261,33 @@ class EmitirFactura extends Model
         $this->getMantenedor()->correrFolio();
 
         return $track_id;
+    }
+    public function generarPdf()
+    {
+        $this->setAmbienteDesarrollo();
+
+        $cuerpo = $this->generarCuerpo();
+        $firma = $this->getFirma();
+        $folios = $this->getFolios();
+        // generar XML del DTE timbrado y firmado
+        $dte = new Dte($cuerpo);
+        $dte->timbrar($folios);
+        $dte->firmar($firma);
+
+        $caratula = $this->generarCaratula();
+        $firma = $this->getFirma();
+
+        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
+        $envioDTE->agregar($dte);
+        $envioDTE->setFirma($firma);
+        $envioDTE->setCaratula($caratula);
+        $envioDTE2 = new \sasco\LibreDTE\Sii\EnvioDte();
+        $envioDTE2->loadXML($envioDTE->generar());
+        $caratula = $envioDTE2->getCaratula();
+
+        $documentos = $envioDTE2->getDocumentos();
+
+        return Yii::$app->pdf->byDte($documentos[0], $caratula);
     }
     public function guardarRegistro($xml)
     {

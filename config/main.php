@@ -44,6 +44,9 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
+        'pdf' => [
+            'class' => 'app\components\PdfGenerator',
+        ],
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => false,
