@@ -163,6 +163,7 @@ class EmitirFactura extends Model
         $detalle = [];
         foreach ($this->productos as $key => $producto) {
             $detalle[] = [
+                'CdgItem' => $producto['codigo'],
                 'NmbItem' => $producto['producto'],
                 'QtyItem' => $producto['cantidad'],
                 'PrcItem' => $producto['precio'],
