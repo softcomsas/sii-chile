@@ -41,8 +41,6 @@ trait DteTrait
     public function setAmbienteDesarrollo()
     {
         \sasco\LibreDTE\Sii::setAmbiente(\sasco\LibreDTE\Sii::CERTIFICACION);
-        \sasco\LibreDTE\Sii::wsdl('CrSeed');
-        \sasco\LibreDTE\Sii::wsdl('GetTokenFromSeed');
     }
     public function setAmbienteProduccion()
     {
