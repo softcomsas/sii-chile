@@ -87,7 +87,8 @@ class EmitirNotaCredito extends Model
     {
         $model = new DynamicModel(['TpoDocRef', 'FolioRef', 'CodRef', 'RazonRef', 'FchRef']);
         $model->addRule(['TpoDocRef', 'FolioRef', 'CodRef', 'RazonRef', 'FchRef'], 'required')
-            ->addRule(['TpoDocRef', 'FolioRef', 'CodRef', 'RazonRef'], 'integer', ['min' => 1])
+            ->addRule(['TpoDocRef', 'FolioRef', 'CodRef'], 'integer', ['min' => 1])
+            ->addRule(['RazonRef'], 'string')
             ->addRule(['FchRef'], 'date', ['format' => 'php:Y-m-d']);
         $model->load($this->$attribute, '');
         if (!$model->validate()) {
@@ -198,7 +199,14 @@ class EmitirNotaCredito extends Model
                     'CmnaRecep' => $this->ciudad_receptor,
                 ],
             ],
-            'Detalle' => $detalle
+            'Detalle' => $detalle,
+            'Referencia' => [
+                'TpoDocRef' => $this->referencia['TpoDocRef'],
+                'FolioRef' => $this->referencia['FolioRef'],
+                "FchRef" => $this->referencia['FchRef'],
+                'CodRef' => $this->referencia['CodRef'],
+                'RazonRef' => $this->referencia['RazonRef'],
+            ],
         ];
     }
     private function generarCaratula($ignorarTipo = false)
