@@ -125,25 +125,10 @@ class FacturaEmitida extends \yii\db\ActiveRecord
     }
     public function getPdf()
     {
-        switch ($this->tipo) {
-            case 33:
-                $EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
-                $EnvioDte->loadXML(file_get_contents($this->path . $this->url_xml));
-                $Caratula = $EnvioDte->getCaratula();
-                $Documentos = $EnvioDte->getDocumentos();
-                break;
-
-            case 39:
-                $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
-                $ConsumoFolio->loadXML(file_get_contents($this->path . $this->url_xml));
-                //$Caratula = $ConsumoFolio->getCaratula();
-                //$Documentos = $ConsumoFolio->getDocumentos();
-                break;
-
-            default:
-                throw new NotAcceptableHttpException("Tipo inválido", 1);
-                break;
-        }
+        $EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
+        $EnvioDte->loadXML(file_get_contents($this->path . $this->url_xml));
+        $Caratula = $EnvioDte->getCaratula();
+        $Documentos = $EnvioDte->getDocumentos();
 
         // directorio temporal para guardar los PDF
         $dir = sys_get_temp_dir() . '/dte_' . $Caratula['RutEmisor'] . '_' . $Caratula['RutReceptor'] . '_' . str_replace(['-', ':', 'T'], '', $Caratula['TmstFirmaEnv']);
