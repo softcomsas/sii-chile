@@ -198,7 +198,7 @@ class EmitirFactura extends Model
         if (!$ignorarTipo && $this->codigo_documento == 39) {
             return [
                 'RutEmisor' => $this->rut_empresa,
-                'RutReceptor' => $this->rut_receptor,
+                //'RutReceptor' => $this->rut_receptor,
                 'FchResol' => '2014-12-05',
                 'NroResol' => 80,
             ];
