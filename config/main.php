@@ -69,7 +69,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                'GET pdf-factura-emitida' => 'facturas/pdf2',
+                'GET pdf-factura-emitida' => 'emitir/pdf2',
                 [
                     'class' => \yii\rest\UrlRule::class,
                     'controller' => [

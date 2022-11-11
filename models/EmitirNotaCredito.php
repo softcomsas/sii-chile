@@ -9,7 +9,7 @@ use sasco\LibreDTE\Sii\Dte;
 use yii\base\DynamicModel;
 use sasco\LibreDTE\Sii\Folios;
 
-class EmitirFactura extends Model
+class EmitirNotaCredito extends Model
 {
     use DteTrait;
 
@@ -24,6 +24,7 @@ class EmitirFactura extends Model
     public $direccion_receptor;
     public $ciudad_receptor;
     public $productos = [];
+    public $referencia;
     public $ambiente;
 
     /** @var Folios */
@@ -52,20 +53,9 @@ class EmitirFactura extends Model
                     'rsocial_receptor',
                     'productos',
                     'ambiente',
-                    'fecha'
+                    'fecha',
                 ],
                 'required'
-            ],
-            [
-                [
-                    'giro_receptor',
-                    'direccion_receptor',
-                    'ciudad_receptor',
-                ],
-                'required',
-                'when' => function($model){
-                    return $model->codigo_documento == 33;
-                }
             ],
             [['codigo_documento'], 'integer'],
             [['codigo_documento'], 'in', 'range' => array_keys(MantenedorFolio::TIPOS_DOCUMENTOS)],
@@ -88,10 +78,24 @@ class EmitirFactura extends Model
             ],
             ['rut_empresa', 'validarRutEmpresa'],
             ['productos', 'validarProducto'],
+            ['referencia', 'validarReferencia', 'skipOnEmpty' => false],
             ['codigo_documento', 'validarFolios', 'except' => [self::SCENARIO_NOTA]],
         ];
     }
 
+    public function validarReferencia($attribute, $params)
+    {
+        $model = new DynamicModel(['TpoDocRef', 'FolioRef', 'CodRef', 'RazonRef', 'FchRef']);
+        $model->addRule(['TpoDocRef', 'FolioRef', 'CodRef', 'RazonRef', 'FchRef'], 'required')
+            ->addRule(['TpoDocRef', 'FolioRef', 'CodRef', 'RazonRef'], 'integer', ['min' => 1])
+            ->addRule(['FchRef'], 'date', ['format' => 'php:Y-m-d']);
+        $model->load($this->$attribute, '');
+        if (!$model->validate()) {
+            foreach ($model->errors as $attr => $errors) {
+                $this->addError("$attribute.$attr", $errors[0]);
+            }
+        }
+    }
     public function validarProducto($attribute, $params)
     {
         $productos = $this->$attribute;
@@ -143,19 +147,23 @@ class EmitirFactura extends Model
         $dte->timbrar($folios);
         $dte->firmar($firma);
 
-        switch ($this->codigo_documento) {
-            case 33:
-                return $this->generarFacturaElectronica($dte);
-                break;
+        // generar sobre con el envío del DTE y enviar al SII
+        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
+        $envioDTE->agregar($dte);
+        $envioDTE->setFirma($firma);
+        $envioDTE->setCaratula($this->generarCaratula());
+        $envioDTE->generar();
+        $xml = $envioDTE->generar();
+        if (!$envioDTE->schemaValidate()) $this->handlerError();
 
-            case 39:
-                return $this->generarBoletaElectronica($dte);
-                break;
+        $this->guardarRegistro($xml);
+        $track_id = $envioDTE->enviar();
+        if (!$track_id)  $this->handlerError();
 
-            default:
-                # code...
-                break;
-        }
+        $this->_registro->track_id = $track_id;
+        $this->_registro->save(false);
+        $this->getMantenedor()->correrFolio();
+        return $track_id;
     }
 
     private function generarCuerpo()
@@ -269,33 +277,6 @@ class EmitirFactura extends Model
         $this->getMantenedor()->correrFolio();
 
         return $track_id;
-    }
-    public function generarPdf()
-    {
-        $this->setAmbienteDesarrollo();
-
-        $cuerpo = $this->generarCuerpo();
-        $firma = $this->getFirma();
-        $folios = $this->getFolios();
-        // generar XML del DTE timbrado y firmado
-        $dte = new Dte($cuerpo);
-        $dte->timbrar($folios);
-        $dte->firmar($firma);
-
-        $caratula = $this->generarCaratula();
-        $firma = $this->getFirma();
-
-        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
-        $envioDTE->agregar($dte);
-        $envioDTE->setFirma($firma);
-        $envioDTE->setCaratula($caratula);
-        $envioDTE2 = new \sasco\LibreDTE\Sii\EnvioDte();
-        $envioDTE2->loadXML($envioDTE->generar());
-        $caratula = $envioDTE2->getCaratula();
-
-        $documentos = $envioDTE2->getDocumentos();
-
-        return Yii::$app->pdf->byDte($documentos[0], $caratula);
     }
     public function guardarRegistro($xml)
     {
