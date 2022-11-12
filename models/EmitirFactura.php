@@ -207,7 +207,7 @@ class EmitirFactura extends Model
                 //'RutReceptor' => $this->rut_receptor,
                 'FchResol' => '2014-08-22',
                 'NroResol' => 80,
-                'FchInicio' => '',
+                'FchInicio' => false,
                 'SecEnvio' => $this->getMantenedor()->getSecuencia(),
             ];
         }
