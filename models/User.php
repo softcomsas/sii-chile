@@ -43,7 +43,6 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        Yii::error($token);
         if ($type == \yii\filters\auth\HttpHeaderAuth::class) {
            if ($token !== Yii::$app->params['staticToken']) {
                 return null;

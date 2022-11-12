@@ -45,13 +45,10 @@ class QueryHashAuth extends AuthMethod
     {
         $hash = $request->get($this->hashParam);
         $time = $request->get($this->timeParam);
-        Yii::error($time, 'time');
         if (is_string($hash) && is_string($time)) {
             $get = $request->get();
             unset($get[$this->hashParam], $get[$this->timeParam]);
             $post = $request->post();
-            Yii::error($get, 'get');
-            Yii::error($post, 'post');
             if (!$this->isValid($hash, $time, $get, $post)) {
                 $this->handleFailure($response);
             }
@@ -73,8 +70,6 @@ class QueryHashAuth extends AuthMethod
         }
 
         $newHash = $this->getHash($time, $get, $body);
-        Yii::error($oldHash, 'oldHash');
-        Yii::error($newHash, 'newHash');
         return $oldHash === $newHash;
     }
 
