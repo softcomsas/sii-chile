@@ -13,7 +13,7 @@ use yii\web\NotAcceptableHttpException;
  * @property string $rut_receptor
  * @property string $fecha
  * @property string|null $url_xml
- * @property int|null $track_id
+ * @property string|null $track_id
  * @property int|null $folio
  * @property int|null $tipo
  */
@@ -32,8 +32,9 @@ class FacturaEmitida extends \yii\db\ActiveRecord
         return [
             [['rut_empresa', 'rut_receptor', 'fecha'], 'required'],
             [['fecha'], 'safe'],
-            [['track_id', 'folio', 'tipo'], 'integer'],
+            [['folio', 'tipo'], 'integer'],
             [['rut_empresa', 'rut_receptor'], 'string', 'max' => 10],
+            [['track_id'], 'string', 'max' => 32],
             [['url_xml'], 'string', 'max' => 45],
         ];
     }
