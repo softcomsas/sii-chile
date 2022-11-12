@@ -133,7 +133,12 @@ class EmitirFactura extends Model
 
     public function emitir()
     {
-        $this->setAmbienteDesarrollo();
+        if ($this->ambiente == 'PROD') {
+            $this->setAmbienteProduccion();
+        } else {
+            $this->setAmbienteDesarrollo();
+        }
+        
 
         $cuerpo = $this->generarCuerpo();
         $firma = $this->getFirma();
