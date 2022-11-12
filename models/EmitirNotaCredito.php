@@ -226,7 +226,7 @@ class EmitirNotaCredito extends Model
         //if ($this->codigo_documento == 33) {
         return [
             //'RutEnvia' => '11222333-4', // se obtiene de la firma
-            'RutReceptor' => '60803000-K',,
+            'RutReceptor' => '60803000-K',
             'FchResol' => '2014-08-22',
             'NroResol' => 80,
         ];
