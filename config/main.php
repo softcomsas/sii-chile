@@ -39,6 +39,12 @@ $config = [
                     return;
                 }*/
             },
+            'on afterSend' => function ($event) {
+                $response = Yii::$app->getResponse();
+                if ($response->statusCode == 422) {
+                    Yii::error($response->data, 'errors');
+                }
+            },
             'charset' => 'UTF-8',
         ],
         'cache' => [

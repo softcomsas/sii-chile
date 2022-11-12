@@ -12,6 +12,7 @@ use Yii;
  * @property int $codigo_documento
  * @property string $tipo_documento
  * @property int|null $siguiente_folio
+ * @property int|null $sec_envio
  * @property int|null $total_disponible
  * @property int|null $total_utilizado
  * @property int|null $alerta
@@ -52,7 +53,7 @@ class MantenedorFolio extends \yii\db\ActiveRecord
     {
         return [
             [['rut_empresa', 'codigo_documento', 'tipo_documento', 'ambiente'], 'required'],
-            [['codigo_documento', 'siguiente_folio', 'total_disponible', 'total_utilizado', 'alerta', 'multiplicador', 'rango_maximo'], 'integer'],
+            [['codigo_documento', 'siguiente_folio', 'total_disponible', 'total_utilizado', 'alerta', 'multiplicador', 'rango_maximo', 'sec_envio'], 'integer'],
             [['rut_empresa'], 'string', 'max' => 10],
             [['tipo_documento'], 'string', 'max' => 45],
             [
@@ -191,5 +192,15 @@ class MantenedorFolio extends \yii\db\ActiveRecord
         }
         $this->siguiente_folio = null;
         return $this->save(false);
+    }
+    public function getSecuencia()
+    {
+        if (!$this->sec_envio || $this->sec_envio_fecha != date("Y-m-d")) {
+            $this->sec_envio = 1;
+            $this->sec_envio_fecha = date("Y-m-d");
+        } else {
+            $this->sec_envio++;
+        }
+        return $this->sec_envio;
     }
 }
