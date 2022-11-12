@@ -12,7 +12,7 @@ class m221112_201530_alter_trak_id_varchar extends Migration
      */
     public function safeUp()
     {
-
+        $this->alterColumn('{{%factura_emitida}}', 'track_id', $this->string(32));
     }
 
     /**
@@ -20,9 +20,6 @@ class m221112_201530_alter_trak_id_varchar extends Migration
      */
     public function safeDown()
     {
-        echo "m221112_201530_alter_trak_id_varchar cannot be reverted.\n";
-
-        return false;
     }
 
     /*
