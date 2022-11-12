@@ -44,6 +44,6 @@ trait DteTrait
     }
     public function setAmbienteProduccion()
     {
-        \sasco\LibreDTE\Sii::setAmbiente(\sasco\LibreDTE\Sii::PRODUCCION);
+        \sasco\LibreDTE\Sii::setAmbiente();
     }
 }

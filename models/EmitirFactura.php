@@ -205,7 +205,7 @@ class EmitirFactura extends Model
             return [
                 'RutEmisor' => $this->rut_empresa,
                 //'RutReceptor' => $this->rut_receptor,
-                'FchResol' => '2014-12-05',
+                'FchResol' => '2014-08-22',
                 'NroResol' => 80,
             ];
         }
@@ -213,7 +213,7 @@ class EmitirFactura extends Model
         return [
             //'RutEnvia' => '11222333-4', // se obtiene de la firma
             'RutReceptor' => $this->rut_receptor,
-            'FchResol' => '2014-12-05',
+            'FchResol' => '2014-08-22',
             'NroResol' => 80,
         ];
         /*}
