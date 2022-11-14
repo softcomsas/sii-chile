@@ -99,7 +99,7 @@ class EmitirFactura extends Model
             $model = new DynamicModel(['codigo', 'producto', 'cantidad', 'precio']);
             $model->addRule(['producto', 'cantidad', 'precio'], 'required')
                 ->addRule(['codigo'], 'integer')
-                ->addRule(['producto'], 'string', ['max' => 45])
+                ->addRule(['producto'], 'string', ['max' => 300])
                 ->addRule(['cantidad', 'precio'], 'number', ['min' => 0.01]);
             $model->load($producto, '');
             if (!$model->validate()) {
