@@ -43,10 +43,15 @@ class EnvioDte extends Component
         } else {
             $this->setAmbienteDesarrollo();
         }
+        $result = [];
         foreach ($this->dtes as $tipo => $dtes) {
             switch ($tipo) {
                 case 39:
-                    $this->sendBoleta(array_values($dtes));
+                    $result[$tipo] = $this->sendBoleta(array_values($dtes));
+                    break;
+
+                case 61:
+                    $result[$tipo] = $this->sendNotaCredito(array_values($dtes));
                     break;
 
                 default:
@@ -54,6 +59,7 @@ class EnvioDte extends Component
                     break;
             }
         }
+        return $result;
     }
 
     private function sendFactura($dtes)
@@ -110,7 +116,7 @@ class EnvioDte extends Component
         if (!$ConsumoFolio->schemaValidate()) $this->handlerError();
 
         $track_id = $ConsumoFolio->enviar();
-        if ($track_id)  $this->handlerError();
+        if (!$track_id)  $this->handlerError();
 
         $folios = ArrayHelper::getColumn($dtes, function ($dte) {
             return $dte->getFolio();
@@ -123,6 +129,44 @@ class EnvioDte extends Component
             [
                 'rut_empresa' => $this->rut_empresa,
                 'tipo' => 39,
+                'folio' => $folios,
+                'track_id' => null
+            ]
+        );
+        return $track_id;
+    }
+    private function sendNotaCredito($dtes)
+    {
+        $firma = $this->getFirma();
+        // crear objeto para consumo de folios
+        $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
+        $ConsumoFolio->setFirma($firma);
+        $ConsumoFolio->setDocumentos([39, 41, 61]);
+
+        // agregar detalle de boleta
+        foreach ($dtes as $dte) {
+            $ConsumoFolio->agregar($dte->getResumen());
+        }
+        $ConsumoFolio->setCaratula($this->generarCaratula(61));
+
+        // generar, validar schema y mostrar XML
+        $xml = $ConsumoFolio->generar();
+        if (!$ConsumoFolio->schemaValidate()) $this->handlerError();
+
+        $track_id = $ConsumoFolio->enviar();
+        if (!$track_id)  $this->handlerError();
+
+        $folios = ArrayHelper::getColumn($dtes, function ($dte) {
+            return $dte->getFolio();
+        }, false);
+        FacturaEmitida::updateAll(
+            [
+                'track_id' => $track_id,
+                'estado' => FacturaEmitida::ESTADO_ENVIADO,
+            ],
+            [
+                'rut_empresa' => $this->rut_empresa,
+                'tipo' => 61,
                 'folio' => $folios,
                 'track_id' => null
             ]
@@ -152,6 +196,14 @@ class EnvioDte extends Component
                     'FchResol' => '2014-08-22',
                     'NroResol' => 80,
                     'SecEnvio' => $this->getMantenedor($tipo)->getSecuencia(),
+                ];
+                break;
+
+            case 61:
+                return [
+                    'RutEmisor' => $this->rut_empresa,
+                    'FchResol' => '2014-08-22',
+                    'NroResol' => 80,
                 ];
                 break;
 

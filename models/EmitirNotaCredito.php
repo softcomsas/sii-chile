@@ -155,6 +155,8 @@ class EmitirNotaCredito extends Model
         $this->guardarRegistro($xml);
         $this->getMantenedor()->correrFolio();
 
+        if($this->referencia['TpoDocRef'] == 39) return true;
+
         // generar sobre con el envío del DTE y enviar al SII
         $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
         $envioDTE->agregar($dte);
@@ -167,6 +169,7 @@ class EmitirNotaCredito extends Model
         if (!$track_id)  $this->handlerError();
 
         $this->_registro->track_id = $track_id;
+        $this->_registro->estado = FacturaEmitida::ESTADO_ENVIADO;
         $this->_registro->save(false);
         return $track_id;
     }

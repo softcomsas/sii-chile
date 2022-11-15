@@ -25,18 +25,21 @@ class EmitirController extends Controller
         Yii::$app->sii->setEmpresa($rut_empresa);
         Yii::$app->sii->setAmbiente($ambiente);
 
-        $boletas = FacturaEmitida::findAll(
-            [
-                'rut_empresa' => $rut_empresa,
-                'tipo' => 39,
-                'estado' => FacturaEmitida::ESTADO_CREADO
-            ]
-        );
+        $registros = FacturaEmitida::find()
+            ->where(
+                [
+                    'rut_empresa' => $rut_empresa,
+                    'tipo' => [39, 61],
+                    'estado' => FacturaEmitida::ESTADO_CREADO
+                ]
+            )
+            ->orderBy(['tipo' => SORT_ASC])
+            ->all();
 
-        foreach ($boletas as $boleta) {
-            Yii::$app->sii->agregar($boleta->getDte());
+        foreach ($registros as $row) {
+            Yii::$app->sii->agregar($row->getDte());
         }
-        Yii::$app->sii->send();
+        return Yii::$app->sii->send();
     }
     public function actionFacturaBoleta()
     {
