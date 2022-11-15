@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use sasco\LibreDTE\Sii\Dte;
 use Yii;
 use yii\web\NotAcceptableHttpException;
 
@@ -19,6 +20,8 @@ use yii\web\NotAcceptableHttpException;
  */
 class FacturaEmitida extends \yii\db\ActiveRecord
 {
+    const ESTADO_CREADO = 1;
+    const ESTADO_ENVIADO = 2;
     /**
      * {@inheritdoc}
      */
@@ -124,42 +127,43 @@ class FacturaEmitida extends \yii\db\ActiveRecord
         }
         return $path;
     }
+    public function getDte()
+    {
+        $xml = file_get_contents($this->path . $this->url_xml);
+        $dte = new Dte($xml);
+        if ($dte->getDatos()){
+            return $dte;
+        }
+        $envioDte = new \sasco\LibreDTE\Sii\EnvioDte();
+        $envioDte->loadXML($xml);
+        $Documentos = $envioDte->getDocumentos();
+        if (!isset($Documentos[0])) {
+            throw new \Exception("XML inválido", 1);
+            ;
+        }
+        return $Documentos[0];
+    }
     public function getPdf()
     {
-        $EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
-        $EnvioDte->loadXML(file_get_contents($this->path . $this->url_xml));
-        $Caratula = $EnvioDte->getCaratula();
-        $Documentos = $EnvioDte->getDocumentos();
-
         // directorio temporal para guardar los PDF
-        $dir = sys_get_temp_dir() . '/dte_' . $Caratula['RutEmisor'] . '_' . $Caratula['RutReceptor'] . '_' . str_replace(['-', ':', 'T'], '', $Caratula['TmstFirmaEnv']);
+        $dir = sys_get_temp_dir() . '/dte-pdf';
         if (is_dir($dir))
             \sasco\LibreDTE\File::rmdir($dir);
         if (!mkdir($dir))
             die('No fue posible crear directorio temporal para DTEs');
 
-        // procesar cada DTEs e ir agregándolo al PDF
-        foreach ($Documentos as $DTE) {
-            if (!$DTE->getDatos())
-                die('No se pudieron obtener los datos del DTE');
-            $pdf = new \sasco\LibreDTE\Sii\Dte\PDF\Dte(80); // =false hoja carta, =true papel contínuo (false por defecto si no se pasa)
-            //$pdf->setFooterText();
-            //$pdf->setLogo('/home/delaf/www/localhost/dev/pages/sasco/website/webroot/img/logo_mini.png'); // debe ser PNG!
-            $pathLogo = Yii::getAlias('@app/upload')
-                . DIRECTORY_SEPARATOR . 'logos-empresas'
-                . DIRECTORY_SEPARATOR;
-            //$pdf->setLogo($pathLogo.'logo_ayala.jpg',1); // debe ser PNG!
-            $pdf->setLogo($pathLogo . 'logo2.png'); // debe ser PNG!
-            // $pdf->setLogo('C:\xampp\htdocs\sii-chile\upload\logos-empresas\logo_myk.png'); // debe ser PNG!
-            $pdf->setResolucion(['FchResol' => $Caratula['FchResol'], 'NroResol' => $Caratula['NroResol']]);
-            //$pdf->setCedible(true);
-            $pdf->agregar($DTE->getDatos(), $DTE->getTED());
-            $path = $dir . '/dte_' . $Caratula['RutEmisor'] . '_' . $DTE->getID() . '.pdf';
-            $pdf->Output($path, 'F');
-            return $path;
-        }
+        $DTE = $this->getDte();
+        $pdf = new \sasco\LibreDTE\Sii\Dte\PDF\Dte(80); // =false hoja carta, =true papel contínuo (false por defecto si no se pasa)
 
-        // entregar archivo comprimido que incluirá cada uno de los DTEs
-        //\sasco\LibreDTE\File::compress($dir, ['format' => 'zip', 'delete' => true, 'download' => false]);
+        $pathLogo = Yii::getAlias('@app/upload')
+            . DIRECTORY_SEPARATOR . 'logos-empresas'
+            . DIRECTORY_SEPARATOR;
+        $pdf->setLogo($pathLogo . 'logo2.png'); // debe ser PNG!
+        $pdf->setResolucion(['FchResol' => '2014-08-22', 'NroResol' => 80]);
+
+        $pdf->agregar($DTE->getDatos(), $DTE->getTED());
+        $path = $dir . '/dte_' . $DTE->getTipo(). '_' . $DTE->getFolio() . '.pdf';
+        $pdf->Output($path, 'F');
+        return $path;
     }
 }

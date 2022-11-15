@@ -20,6 +20,24 @@ class EmitirController extends Controller
         ];
         return $actions;
     }
+    public function actionPendientes($ambiente = 'DEV', $rut_empresa = '7555986-0')
+    {
+        Yii::$app->sii->setEmpresa($rut_empresa);
+        Yii::$app->sii->setAmbiente($ambiente);
+
+        $boletas = FacturaEmitida::findAll(
+            [
+                'rut_empresa' => $rut_empresa,
+                'tipo' => 39,
+                'estado' => FacturaEmitida::ESTADO_CREADO
+            ]
+        );
+
+        foreach ($boletas as $boleta) {
+            Yii::$app->sii->agregar($boleta->getDte());
+        }
+        Yii::$app->sii->send();
+    }
     public function actionFacturaBoleta()
     {
         $model = new EmitirFactura();

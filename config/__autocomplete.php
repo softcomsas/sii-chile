@@ -21,6 +21,7 @@ class Yii {
 /**
  * @property yii\rbac\DbManager $authManager 
  * @property app\components\PdfGenerator $pdf 
+ * @property app\components\EnvioDte $sii 
  * @property \yii\web\User|__WebUser $user
  * 
  */

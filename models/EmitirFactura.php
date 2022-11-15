@@ -138,7 +138,6 @@ class EmitirFactura extends Model
         } else {
             $this->setAmbienteDesarrollo();
         }
-        
 
         $cuerpo = $this->generarCuerpo();
         $firma = $this->getFirma();
@@ -147,6 +146,9 @@ class EmitirFactura extends Model
         $dte = new Dte($cuerpo);
         $dte->timbrar($folios);
         $dte->firmar($firma);
+        $xml = $dte->saveXML();
+        $this->guardarRegistro($xml);
+        $this->getMantenedor()->correrFolio();
 
         switch ($this->codigo_documento) {
             case 33:
@@ -154,7 +156,8 @@ class EmitirFactura extends Model
                 break;
 
             case 39:
-                return $this->generarBoletaElectronica($dte);
+                return true;
+                //return $this->generarBoletaElectronica($dte);
                 break;
 
             default:
@@ -230,17 +233,16 @@ class EmitirFactura extends Model
         $envioDTE->agregar($dte);
         $envioDTE->setFirma($firma);
         $envioDTE->setCaratula($caratula);
-        $xml = $envioDTE->generar();
+        $envioDTE->generar();
         if (!$envioDTE->schemaValidate()) $this->handlerError();
 
-        $this->guardarRegistro($xml);
         //$envioDTE->generar();
         $track_id = $envioDTE->enviar();
         if (!$track_id)  $this->handlerError();
 
         $this->_registro->track_id = $track_id;
+        $this->_registro->estado = FacturaEmitida::ESTADO_ENVIADO;
         $this->_registro->save(false);
-        $this->getMantenedor()->correrFolio();
         return $track_id;
     }
     public function generarBoletaElectronica(Dte $dte)
@@ -255,6 +257,8 @@ class EmitirFactura extends Model
         if (!$envioDTE->schemaValidate()) $this->handlerError();
 
         $this->guardarRegistro($xml);
+
+        return true;
 
         // crear objeto para consumo de folios
         $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
@@ -273,6 +277,7 @@ class EmitirFactura extends Model
         //if ($track_id)  $this->handlerError();
 
         $this->_registro->track_id = $track_id;
+        $this->_registro->estado = FacturaEmitida::ESTADO_ENVIADO;
         $this->_registro->save(false);
         $this->getMantenedor()->correrFolio();
 

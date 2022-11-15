@@ -151,6 +151,9 @@ class EmitirNotaCredito extends Model
         $dte = new Dte($cuerpo);
         $dte->timbrar($folios);
         $dte->firmar($firma);
+        $xml = $dte->saveXML();
+        $this->guardarRegistro($xml);
+        $this->getMantenedor()->correrFolio();
 
         // generar sobre con el envío del DTE y enviar al SII
         $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
@@ -158,16 +161,13 @@ class EmitirNotaCredito extends Model
         $envioDTE->setFirma($firma);
         $envioDTE->setCaratula($this->generarCaratula());
         $envioDTE->generar();
-        $xml = $envioDTE->generar();
         if (!$envioDTE->schemaValidate()) $this->handlerError();
 
-        $this->guardarRegistro($xml);
         $track_id = $envioDTE->enviar();
         if (!$track_id)  $this->handlerError();
 
         $this->_registro->track_id = $track_id;
         $this->_registro->save(false);
-        $this->getMantenedor()->correrFolio();
         return $track_id;
     }
 
@@ -234,63 +234,6 @@ class EmitirNotaCredito extends Model
         return [];*/
     }
 
-    public function generarFacturaElectronica(Dte $dte)
-    {
-        $caratula = $this->generarCaratula();
-        $firma = $this->getFirma();
-
-        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
-        $envioDTE->agregar($dte);
-        $envioDTE->setFirma($firma);
-        $envioDTE->setCaratula($caratula);
-        $xml = $envioDTE->generar();
-        if (!$envioDTE->schemaValidate()) $this->handlerError();
-
-        $this->guardarRegistro($xml);
-        //$envioDTE->generar();
-        $track_id = $envioDTE->enviar();
-        if (!$track_id)  $this->handlerError();
-
-        $this->_registro->track_id = $track_id;
-        $this->_registro->save(false);
-        $this->getMantenedor()->correrFolio();
-        return $track_id;
-    }
-    public function generarBoletaElectronica(Dte $dte)
-    {
-        $firma = $this->getFirma();
-
-        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
-        $envioDTE->agregar($dte);
-        $envioDTE->setFirma($firma);
-        $envioDTE->setCaratula($this->generarCaratula(true));
-        $xml = $envioDTE->generar();
-        if (!$envioDTE->schemaValidate()) $this->handlerError();
-
-        $this->guardarRegistro($xml);
-
-        // crear objeto para consumo de folios
-        $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
-        $ConsumoFolio->setFirma($firma);
-        $ConsumoFolio->setDocumentos([39, 41, 61]);
-
-        // agregar detalle de boleta
-        $ConsumoFolio->agregar($dte->getResumen());
-        $ConsumoFolio->setCaratula($this->generarCaratula());
-
-        // generar, validar schema y mostrar XML
-        $xml = $ConsumoFolio->generar();
-        if (!$ConsumoFolio->schemaValidate()) $this->handlerError();
-
-        $track_id = $ConsumoFolio->enviar();
-        //if ($track_id)  $this->handlerError();
-
-        $this->_registro->track_id = $track_id;
-        $this->_registro->save(false);
-        $this->getMantenedor()->correrFolio();
-
-        return $track_id;
-    }
     public function guardarRegistro($xml)
     {
         $this->_registro = new FacturaEmitida();
