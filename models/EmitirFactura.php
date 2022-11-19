@@ -96,11 +96,14 @@ class EmitirFactura extends Model
     {
         $productos = $this->$attribute;
         foreach ($productos as $key => $producto) {
-            $model = new DynamicModel(['codigo', 'producto', 'cantidad', 'precio']);
+            $model = new DynamicModel(['codigo', 'producto', 'cantidad', 'precio', 'por_cto_descuento']);
             $model->addRule(['producto', 'cantidad', 'precio'], 'required')
                 ->addRule(['codigo'], 'integer')
                 ->addRule(['producto'], 'string', ['max' => 300])
-                ->addRule(['cantidad', 'precio'], 'number', ['min' => 0.01]);
+                ->addRule(['cantidad', 'precio'], 'number', ['min' => 0.01])
+                ->addRule(['por_cto_descuento'], 'default', ['value' => 0])
+                ->addRule(['por_cto_descuento'], 'number', ['min' => 0])
+                ;
             $model->load($producto, '');
             if (!$model->validate()) {
                 foreach ($model->errors as $attr => $errors) {
@@ -170,12 +173,16 @@ class EmitirFactura extends Model
     {
         $detalle = [];
         foreach ($this->productos as $key => $producto) {
-            $detalle[] = [
+            $row = [
                 'CdgItem' => $producto['codigo'],
                 'NmbItem' => $producto['producto'],
                 'QtyItem' => $producto['cantidad'],
                 'PrcItem' => $producto['precio'],
             ];
+            if ($producto['por_cto_descuento']) {
+                $row['DescuentoPct'] = $producto['por_cto_descuento'];
+            }
+            $detalle[] = $row;
         }
         return [
             'Encabezado' => [
