@@ -176,7 +176,7 @@ class EmitirFactura extends Model
                 'QtyItem' => $producto['cantidad'],
                 'PrcItem' => $producto['precio'],
             ];
-            if ($producto['por_cto_descuento']) {
+            if (isset($producto['por_cto_descuento'])) {
                 $row['DescuentoPct'] = $producto['por_cto_descuento'];
             }
             $detalle[] = $row;
@@ -248,7 +248,10 @@ class EmitirFactura extends Model
         $this->_registro->track_id = $track_id;
         $this->_registro->save(false);
         $this->getMantenedor()->correrFolio();
-        return $track_id;
+        return [
+            'folio' => (int) $dte->getFolio(),
+            'track_id' => $track_id,
+        ];
     }
     public function generarBoletaElectronica(Dte $dte)
     {
@@ -283,7 +286,10 @@ class EmitirFactura extends Model
         $this->_registro->save(false);
         $this->getMantenedor()->correrFolio();
 
-        return $track_id;
+        return [
+            'folio' => (int) $dte->getFolio(),
+            'track_id' => $track_id,
+        ];
     }
     public function generarPdf()
     {
