@@ -109,6 +109,9 @@ class EnvioDte extends Component
         }
         $envioDTE->setFirma($firma);
         $envioDTE->setCaratula($this->generarCaratula($tipo));
+        $envioDTE->generar();
+        if (!$envioDTE->schemaValidate()) $this->handlerError();
+
         $xml = $envioDTE->generar();
 
         $result = \sasco\LibreDTE\Sii::enviar($this->rut_empresa, $this->rut_empresa, $xml, $this->getToken());
