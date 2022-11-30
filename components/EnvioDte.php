@@ -198,14 +198,14 @@ class EnvioDte extends Component
     private function generarCaratula($tipo)
     {
         switch ($tipo) {
-            case 39:
+            /*case 39:
                 return [
                     'RutEmisor' => $this->rut_empresa,
                     'FchResol' => '2014-08-22',
                     'NroResol' => 80,
                     'SecEnvio' => $this->getMantenedor($tipo)->getSecuencia(),
                 ];
-                break;
+                break;*/
 
             case 61:
                 return [
