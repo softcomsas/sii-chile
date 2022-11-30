@@ -5,6 +5,7 @@ namespace app\components;
 use yii\base\Component;
 use app\traits\DteTrait;
 use app\models\FacturaEmitida;
+use app\models\MantenedorFolio;
 use sasco\LibreDTE\Sii\Dte;
 use yii\helpers\ArrayHelper;
 
@@ -99,23 +100,26 @@ class EnvioDte extends Component
     }
     private function sendBoleta($dtes)
     {
+        $tipo = 39;
         $firma = $this->getFirma();
-        // crear objeto para consumo de folios
-        $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
-        $ConsumoFolio->setFirma($firma);
-        $ConsumoFolio->setDocumentos([39, 41, 61]);
 
-        // agregar detalle de boleta
+        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
         foreach ($dtes as $dte) {
-            $ConsumoFolio->agregar($dte->getResumen());
+            $envioDTE->agregar($dte);
         }
-        $ConsumoFolio->setCaratula($this->generarCaratula(39));
+        $envioDTE->setFirma($firma);
+        $envioDTE->setCaratula($this->generarCaratula($tipo));
+        $xml = $envioDTE->generar();
 
-        // generar, validar schema y mostrar XML
-        $xml = $ConsumoFolio->generar();
-        if (!$ConsumoFolio->schemaValidate()) $this->handlerError();
+        $result = \sasco\LibreDTE\Sii::enviar($this->rut_empresa, $this->rut_empresa, $xml, $this->getToken());
 
-        $track_id = $ConsumoFolio->enviar();
+        // si hubo algún error al enviar al servidor mostrar
+        if ($result === false) $this->handlerError();
+
+        // Mostrar resultado del envío
+        if ($result->STATUS != '0') $this->handlerError();
+
+        $track_id = $result->TRACKID;
         if (!$track_id)  $this->handlerError();
 
         $folios = ArrayHelper::getColumn($dtes, function ($dte) {
@@ -128,11 +132,12 @@ class EnvioDte extends Component
             ],
             [
                 'rut_empresa' => $this->rut_empresa,
-                'tipo' => 39,
+                'tipo' => $tipo,
                 'folio' => $folios,
                 'track_id' => null
             ]
         );
+        $this->getMantenedor($tipo)->save(false);
         return $track_id;
     }
     private function sendNotaCredito($dtes)
@@ -175,10 +180,10 @@ class EnvioDte extends Component
     }
 
     private $_mantenedor = [];
-    public function getMantenedor($tipo)
+    public function getMantenedor($tipo): MantenedorFolio
     {
         if (!isset($this->_mantenedor[$tipo])) {
-            $this->_mantenedor[$tipo] = \app\models\MantenedorFolio::findOne([
+            $this->_mantenedor[$tipo] = MantenedorFolio::findOne([
                 'rut_empresa' => $this->rut_empresa,
                 'codigo_documento' => $tipo,
                 'ambiente' => $this->ambiente
