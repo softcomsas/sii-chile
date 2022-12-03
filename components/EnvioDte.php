@@ -114,6 +114,8 @@ class EnvioDte extends Component
 
         $xml = $envioDTE->generar();
 
+        file_put_contents('C:\xampp\htdocs\sii-chile\upload\EnvioBOLETA.xml', $xml);
+
         $result = \sasco\LibreDTE\Sii::enviar($this->rut_empresa, $this->rut_empresa, $xml, $this->getToken());
 
         // si hubo algún error al enviar al servidor mostrar
@@ -198,7 +200,7 @@ class EnvioDte extends Component
     private function generarCaratula($tipo)
     {
         switch ($tipo) {
-            /*case 39:
+                /*case 39:
                 return [
                     'RutEmisor' => $this->rut_empresa,
                     'FchResol' => '2014-08-22',

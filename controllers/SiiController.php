@@ -79,4 +79,18 @@ class SiiController extends Controller
             'token' => $token
         ];
     }
+
+    public function actionObtenerTokenBoleta()
+    {
+        $cliente = new SiiClient();
+        $cliente->ObtenerSemillaBoleta();
+
+        $token = $cliente->ObtenerTokenBoleta();
+
+        $usuario = '7555986-0';
+        $empresa = '7555986-0';
+        $dte = file_get_contents('C:\xampp\htdocs\sii-chile\upload\EnvioBOLETA.xml');
+
+        return $cliente->enviarBoleta($usuario, $empresa, $dte, $token);
+    }
 }

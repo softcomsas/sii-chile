@@ -15,6 +15,7 @@ class SiiClient
     public $urlBase = 'https://rahue.sii.cl/recursos/v1';
 
     public $semilla;
+    public $semillaBoleta;
     public $token;
 
     public $sw_produccion = 1;
@@ -120,7 +121,11 @@ class SiiClient
 
         # DOCUMENTO FIRMADO
         $semilla_firmada = '<?xml version="1.0" encoding="ISO-8859-1"?>
-        <getToken><item><Semilla>' . $semilla . '</Semilla></item>' . $signature_docto . '</getToken>';
+        <getToken>
+            <item>
+                <Semilla>' . $semilla . '</Semilla>
+            </item>' . $signature_docto . '
+        </getToken>';
 
         # guardar el elemento set para calcular su digesta
         $archivo = fopen(Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . 'semilla_firmada.xml', "w") or die("ERROR");
@@ -128,10 +133,10 @@ class SiiClient
         fclose($archivo);
 
         # NOMBRE DEL SCRIPT
-        $serverScript = "GetTokenFromSeed.jws"; // sii.cl 	 https://maullin.sii.cl/DTEWS/GetTokenFromSeed.jws
+        $serverScript = "GetTokenFromSeed.jws"; // sii.cl https://maullin.sii.cl/DTEWS/GetTokenFromSeed.jws
 
         # METODO A LLAMAR
-        $metodoALlamar = 'getToken'; // sii.cl   ESTE METODO DEVUELVE 12+2 caracteres   001412726972 00  
+        $metodoALlamar = 'getToken'; // sii.cl ESTE METODO DEVUELVE 12+2 caracteres 001412726972 00
 
         # Crear un cliente de NuSOAP para el WebService
         $cliente = new nusoap_client("$serverURL/$serverScript?wsdl", 'wsdl');
@@ -146,7 +151,7 @@ class SiiClient
         # ARCHIVO XML A ENVIAR
         $archivo_xml = file_get_contents(Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . 'semilla_firmada.xml');
 
-        #  EJECUTAR LA LLAMADA A LA URL DEL SII ENVIANDO EL XML CON LA SEMILLA FIRMADA
+        # EJECUTAR LA LLAMADA A LA URL DEL SII ENVIANDO EL XML CON LA SEMILLA FIRMADA
         $result = $cliente->call(
             "$metodoALlamar", // Funcion a llamar
             array($archivo_xml), // Parametros pasados a la funcion
@@ -186,14 +191,14 @@ class SiiClient
     private function ObtenerDigestion($url_archivo)
     {
         // crear tabulacion automatica
-        // $doc->formatOutput = true; 
+        // $doc->formatOutput = true;
         // Crear Objeto Xml
         $doc = new \DOMDocument();
         // Preservar los espacios tabulaciones, etc...
         $doc->preserveWhiteSpace = true;
         // Carga archivo en el objeto
         $doc->load(Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $url_archivo);
-        //  Embeber
+        // Embeber
         $dom = $doc->documentElement;
         // Calcular Digestion
         $digestion = base64_encode(sha1($dom->C14N(), true));
@@ -285,19 +290,141 @@ class SiiClient
         if (!empty($err)) {
             return [
                 'success' => false,
-                'data'    => $err
+                'data' => $err
             ];
         }
         if ($response == null || is_string($response)) {
             return [
                 'success' => false,
-                'data'    => 'Respuesta de Sii' . $response
+                'data' => 'Respuesta de Sii' . $response
             ];
         }
         Yii::error($response);
         return [
             'success' => true,
-            'data'    => $response
+            'data' => $response
         ];
+    }
+
+    public function ObtenerSemillaBoleta()
+    {
+        if ($this->semillaBoleta) {
+            return $this->semillaBoleta;
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.sii.cl/recursos/v1/boleta.electronica.semilla');
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            "accept: application/xml",
+            "content-type: application/xml"
+        ));
+
+        $response = curl_exec($ch);
+
+        $err = curl_error($ch);
+        if (!empty($err)) {
+            return [
+                'success' => false,
+                'data' => $err
+            ];
+        }
+
+        curl_close($ch);
+
+        $dom = new \DOMDocument;
+        $dom->loadXML($response);
+
+        $elementos = $dom->getElementsByTagName('SEMILLA');
+        $lista = [];
+
+        foreach ($elementos as $element) {
+            $lista[] = $element->nodeValue;
+        }
+
+        $this->semillaBoleta = $lista[0];
+
+        return $this->semillaBoleta;
+    }
+
+    public function ObtenerTokenBoleta()
+    {
+        $semilla = $this->semillaBoleta;
+
+        return \sasco\LibreDTE\Sii\Autenticacion::getTokenBoleta($semilla, Yii::$app->params['config']);
+    }
+
+    public static function enviarBoleta($usuario, $empresa, $dte, $token, $retry = null)
+    {
+        // definir datos que se usarán en el envío
+        list($rutSender, $dvSender) = explode('-', str_replace('.', '', $usuario));
+        list($rutCompany, $dvCompany) = explode('-', str_replace('.', '', $empresa));
+        if (strpos($dte, '<?xml') === false) {
+            $dte = '<?xml version="1.0" encoding="ISO-8859-1"?>' . "\n" . $dte;
+        }
+        do {
+            $file = sys_get_temp_dir() . '\dte_' . md5(microtime() . $token . $dte) . '.' . ('xml');
+        } while (file_exists($file));
+
+        file_put_contents($file, $dte);
+        $data = [
+            'rutSender' => $rutSender,
+            'dvSender' => $dvSender,
+            'rutCompany' => $rutCompany,
+            'dvCompany' => $dvCompany,
+            'archivo' => curl_file_create(
+                $file,
+                'application/xml',
+                basename($file)
+            ),
+        ];
+
+        // definir reintentos si no se pasaron
+        if (!$retry) {
+            $retry = 10;
+        }
+
+        // crear sesión curl con sus opciones
+        $curl = curl_init();
+        $header = [
+            'User-Agent: Mozilla/4.0 (compatible; PROG 1.0; LibreDTE)',
+            'Referer: https://libredte.cl',
+            'Cookie: TOKEN=' . $token,
+        ];
+        $url = 'https://rahue.sii.cl/recursos/v1/boleta.electronica.envio';
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        // enviar XML al SII
+        for ($i = 0; $i < $retry; $i++) {
+            $response = curl_exec($curl);
+            if ($response and $response != 'Error 500') {
+                break;
+            }
+        }
+
+        unlink($file);
+
+        // verificar respuesta del envío y entregar error en caso que haya uno
+        if (!$response or $response == 'Error 500') {
+            if (!$response) {
+                \sasco\LibreDTE\Log::write(\sasco\LibreDTE\Estado::ENVIO_ERROR_CURL,  \sasco\LibreDTE\Estado::get(\sasco\LibreDTE\Estado::ENVIO_ERROR_CURL, curl_error($curl)));
+            }
+            if ($response == 'Error 500') {
+                \sasco\LibreDTE\Log::write(\sasco\LibreDTE\Estado::ENVIO_ERROR_500,  \sasco\LibreDTE\Estado::get(\sasco\LibreDTE\Estado::ENVIO_ERROR_500));
+            }
+            return false;
+        }
+
+        // cerrar sesión curl
+        curl_close($curl);
+
+        $r = json_decode($response, true);
+
+        return $r;
     }
 }
