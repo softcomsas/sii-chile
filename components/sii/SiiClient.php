@@ -427,4 +427,32 @@ class SiiClient
 
         return $r;
     }
+
+    public function EstadoEnvioBoleta($empresa, $trackId, $token)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://api.sii.cl/recursos/v1/boleta.electronica.envio/$empresa-$trackId");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            "accept: application/json",
+            'Cookie: TOKEN=' . $token,
+        ));
+
+        $response = curl_exec($ch);
+
+        $err = curl_error($ch);
+        if (!empty($err)) {
+            return [
+                'success' => false,
+                'data' => $err
+            ];
+        }
+
+        curl_close($ch);
+
+        $r = json_decode($response, true);
+
+        return $r;
+    }
 }
