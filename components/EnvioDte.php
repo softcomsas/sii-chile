@@ -2,11 +2,13 @@
 
 namespace app\components;
 
+use app\components\sii\SiiClientBoleta;
 use yii\base\Component;
 use app\traits\DteTrait;
 use app\models\FacturaEmitida;
 use app\models\MantenedorFolio;
 use sasco\LibreDTE\Sii\Dte;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 class EnvioDte extends Component
@@ -114,17 +116,17 @@ class EnvioDte extends Component
 
         $xml = $envioDTE->generar();
 
-        file_put_contents('C:\xampp\htdocs\sii-chile\upload\EnvioBOLETA.xml', $xml);
+        //file_put_contents('C:\xampp\htdocs\sii-chile\upload\EnvioBOLETA.xml', $xml);
 
-        $result = \sasco\LibreDTE\Sii::enviar($this->rut_empresa, $this->rut_empresa, $xml, $this->getToken());
+        $client = new SiiClientBoleta();
+        $result = $client->enviarBoleta($this->rut_empresa, $this->rut_empresa, $xml);
+
+        Yii::info($result, 'Envío Boleta Result');
 
         // si hubo algún error al enviar al servidor mostrar
         if ($result === false) $this->handlerError();
 
-        // Mostrar resultado del envío
-        if ($result->STATUS != '0') $this->handlerError();
-
-        $track_id = $result->TRACKID;
+        $track_id = $result['trackid'] ?? null;
         if (!$track_id)  $this->handlerError();
 
         $folios = ArrayHelper::getColumn($dtes, function ($dte) {
