@@ -2,6 +2,7 @@
 
 namespace  app\controllers;
 
+use app\components\sii\SiiClientBoleta;
 use app\models\EmitirFactura;
 use app\models\EmitirNotaCredito;
 use Yii;
@@ -20,10 +21,10 @@ class EmitirController extends Controller
         ];
         return $actions;
     }
-    public function actionPendientes($ambiente = 'DEV', $rut_empresa = '7555986-0')
+    public function actionPendientes($rut_empresa = '7555986-0')
     {
         Yii::$app->sii->setEmpresa($rut_empresa);
-        Yii::$app->sii->setAmbiente($ambiente);
+        Yii::$app->sii->setAmbiente(Yii::$app->params['SII.AMBIENTE']);
 
         $registros = FacturaEmitida::find()
             ->where(
@@ -40,6 +41,11 @@ class EmitirController extends Controller
             Yii::$app->sii->agregar($row->getDte());
         }
         return Yii::$app->sii->send();
+    }
+    public function actionEstado($rut_empresa = '7555986-0', $trackid)
+    {
+        $cliente = new SiiClientBoleta();
+        return $cliente->estadoEnvioBoleta($rut_empresa, $trackid);
     }
     public function actionFacturaBoleta()
     {
@@ -104,7 +110,8 @@ class EmitirController extends Controller
 
     public function getAmbiente()
     {
-        $ambiente = Yii::$app->request->getHeaders()->get('ambiente', MantenedorFolio::AMBIENTE_DEV);
+        //$ambiente = Yii::$app->request->getHeaders()->get('ambiente', MantenedorFolio::AMBIENTE_DEV);
+        $ambiente = Yii::$app->params['SII.AMBIENTE'];
         return $ambiente;
     }
 }
