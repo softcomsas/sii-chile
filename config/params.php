@@ -9,8 +9,12 @@ return [
     'JWT.SECRET'=> '123456',
     'JWT.EXPIRE'=> 300,
 
-    //Token
-    'staticToken' => '123456',
+    //AUTH_HASH
+    'AUTH_HASH.KEY' => 'ABCabc123/*-',
+
+    //SII
+    'SII.AMBIENTE' => 'DEV',
+
 
     //Firma
     'config' => [],
