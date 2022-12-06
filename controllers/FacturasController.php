@@ -71,12 +71,11 @@ class FacturasController extends Controller
             'inline' => true
         ]);
     }
-    public function actionPdf3($rut, $fecha_min)
+    public function actionPdf3($rut)
     {
-        $models = FacturaEmitida::selectAll([
-            'rut' => (string) $rut,
-            'fecha_min' => $fecha_min,
-        ]);
+        $params = Yii::$app->request->get();
+        $params['rut'] = (string) $rut;
+        $models = FacturaEmitida::selectAll($params);
         foreach ($models as $model) {
             $pdf = $model->getPdf($model->getPath());
         }
