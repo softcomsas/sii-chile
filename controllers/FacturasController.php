@@ -71,6 +71,18 @@ class FacturasController extends Controller
             'inline' => true
         ]);
     }
+    public function actionPdf3($rut, $fecha_min)
+    {
+        $models = FacturaEmitida::selectAll([
+            'rut' => (string) $rut,
+            'fecha_min' => $fecha_min,
+        ]);
+        foreach ($models as $model) {
+            $pdf = $model->getPdf($model->getPath());
+        }
+
+        return count($models);
+    }
     public function actionGenerarPdf()
     {
         $model = new EmitirFactura(['scenario' => EmitirFactura::SCENARIO_NOTA]);
