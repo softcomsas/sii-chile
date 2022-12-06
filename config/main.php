@@ -111,7 +111,7 @@ $config = [
         'authMethods' => [
             [
                 'class' => \app\components\QueryHashAuth::class,
-                'key' => $params['']
+                'key' => $params['AUTH_HASH.KEY']
             ],
             \sizeg\jwt\JwtHttpBearerAuth::class,
         ]
