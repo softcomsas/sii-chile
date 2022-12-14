@@ -114,7 +114,7 @@ class SiiClientBoleta extends Component
             $dte = '<?xml version="1.0" encoding="ISO-8859-1"?>' . "\n" . $dte;
         }
         do {
-            $file = sys_get_temp_dir() . '\dte_' . md5(microtime() . $token . $dte) . '.' . ('xml');
+            $file = sys_get_temp_dir() . DIRECTORY_SEPARATOR. 'dte_' . md5(microtime() . $token . $dte) . '.' . ('xml');
         } while (file_exists($file));
 
         file_put_contents($file, $dte);
