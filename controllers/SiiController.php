@@ -6,6 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use app\models\ProcessDTE;
 use app\components\sii\SiiClient;
+use app\components\sii\SiiClientBoleta;
 use app\models\Factura;
 
 class SiiController extends Controller
@@ -96,14 +97,10 @@ class SiiController extends Controller
 
     public function actionEstadoEnvioBoleta($trackId)
     {
-        $cliente = new SiiClient();
-
-        $cliente->ObtenerSemillaBoleta();
-
-        $token = $cliente->ObtenerTokenBoleta();
+        $cliente = new SiiClientBoleta();
 
         $empresa = '7555986-0';
 
-        return $cliente->EstadoEnvioBoleta($empresa, $trackId, $token);
+        return $cliente->estadoEnvioBoleta($empresa, $trackId);
     }
 }
