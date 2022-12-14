@@ -94,7 +94,7 @@ class SiiController extends Controller
         return $cliente->enviarBoleta($usuario, $empresa, $dte, $token);
     }
 
-    public function actionEstadoEnvioBoleta()
+    public function actionEstadoEnvioBoleta($trackId)
     {
         $cliente = new SiiClient();
 
@@ -103,8 +103,6 @@ class SiiController extends Controller
         $token = $cliente->ObtenerTokenBoleta();
 
         $empresa = '7555986-0';
-
-        $trackId = "6812585353";
 
         return $cliente->EstadoEnvioBoleta($empresa, $trackId, $token);
     }
