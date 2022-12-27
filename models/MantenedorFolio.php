@@ -187,6 +187,8 @@ class MantenedorFolio extends \yii\db\ActiveRecord
         }
         $nuevoCaf = $this->siguienteCaf;
         if ($nuevoCaf) {
+            $nuevoCaf->estado = Caf::ESTADO_EN_USO;
+            $nuevoCaf->save();
             $this->siguiente_folio = $nuevoCaf->desde;
             return $this->save(false);
         }
