@@ -106,17 +106,17 @@ $config = [
             'Access-Control-Expose-Headers' => ['*'],
         ],
     ],
-    'as Authenticator' => [
-        'class' => \app\components\CompositeAuth::class,
-        'optional' => ['debug/*', 'emitir/pendientes'],
-        'authMethods' => [
-            [
-                'class' => \app\components\QueryHashAuth::class,
-                'key' => $params['AUTH_HASH.KEY']
-            ],
-            \sizeg\jwt\JwtHttpBearerAuth::class,
-        ]
-    ],
+    // 'as Authenticator' => [
+    //     'class' => \app\components\CompositeAuth::class,
+    //     'optional' => ['debug/*', 'emitir/pendientes'],
+    //     'authMethods' => [
+    //         [
+    //             'class' => \app\components\QueryHashAuth::class,
+    //             'key' => $params['AUTH_HASH.KEY']
+    //         ],
+    //         \sizeg\jwt\JwtHttpBearerAuth::class,
+    //     ]
+    // ],
     'params' => $params,
 ];
 
