@@ -200,10 +200,9 @@ class ProcessDTE
                     'Detalles'  => $datos['Detalle']
                 ]);
                 //$factura->Detalles = 
-                if(!$factura->save()){
-                    print_r($factura->errors). " \n";
-                    throw new \Exception("Factura inválida", 1);
-                    ;
+                if (!$factura->save()) {
+                    print_r($factura->errors) . " \n";
+                    throw new \Exception("Factura inválida", 1);;
                 }
             }
             $dir = Yii::getAlias('@processed') . DIRECTORY_SEPARATOR
@@ -225,7 +224,7 @@ class ProcessDTE
 
             if (copy($file,  $dir . DIRECTORY_SEPARATOR  . basename($file)))
                 FileHelper::unlink($file);
-            }
+        }
         return [
             'Caratula' => $Caratula,
             'Documentos' => $Docs
