@@ -200,7 +200,11 @@ class ProcessDTE
                     'Detalles'  => $datos['Detalle']
                 ]);
                 //$factura->Detalles = 
-                $factura->save();
+                if(!$factura->save()){
+                    print_r($factura->errors). " \n";
+                    throw new \Exception("Factura inválida", 1);
+                    ;
+                }
             }
             $dir = Yii::getAlias('@processed') . DIRECTORY_SEPARATOR
                 . substr($Caratula['TmstFirmaEnv'], 0, 10) . '_' . $Caratula['RutEmisor'] . '_' . $Caratula['RutReceptor'];
@@ -213,7 +217,12 @@ class ProcessDTE
         } catch (\Throwable $th) {
             echo "File " . $file . " \n";
             echo $th->getMessage() . " \n";
-        }
+
+            $dir = Yii::getAlias('@skiped') . DIRECTORY_SEPARATOR;
+
+            if (copy($file,  $dir . DIRECTORY_SEPARATOR  . basename($file)))
+                FileHelper::unlink($file);
+            }
         return [
             'Caratula' => $Caratula,
             'Documentos' => $Docs
