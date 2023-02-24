@@ -195,7 +195,9 @@ class ProcessDTE
                     'TasaIVA'  => isset($datos['Encabezado']['Totales']['TasaIVA'])
                         ? $datos['Encabezado']['Totales']['TasaIVA']
                         : null,
-                    'IVA'  => $datos['Encabezado']['Totales']['IVA'],
+                    'IVA'  => isset($datos['Encabezado']['Totales']['IVA'])
+                            ? $datos['Encabezado']['Totales']['IVA']
+                            : null,
                     'MntTotal'  => $datos['Encabezado']['Totales']['MntTotal'],
                     'Detalles'  => $datos['Detalle']
                 ]);
