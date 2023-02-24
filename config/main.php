@@ -13,7 +13,7 @@ $config = [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
-        '@skiped' => '@app/upload/skiped',
+        '@dteEliminados' => '@app/upload/skiped',
         '@processed' => '@app/upload/processed',
         '@unprocessed' => '@app/upload/unprocessed',
     ],

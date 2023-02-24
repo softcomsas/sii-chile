@@ -217,13 +217,13 @@ class ProcessDTE
             echo "File " . $file . " \n";
             echo $th->getMessage() . " \n";
 
-            /*$dir = Yii::getAlias('@skiped');
+            $dir = Yii::getAlias('@dteEliminados');
             if (!is_dir($dir)) {
                 mkdir($dir);
             }
 
             if (copy($file,  $dir . DIRECTORY_SEPARATOR  . basename($file)))
-                FileHelper::unlink($file);*/
+                FileHelper::unlink($file);
         }
         return [
             'Caratula' => $Caratula,
