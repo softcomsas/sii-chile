@@ -103,68 +103,116 @@ class ProcessDTE
     }
     public static function processFile($file = 'EnvMiPERCP1523907049.xml')
     {
-        $EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
-        $EnvioDte->loadXML(file_get_contents($file));
-        $Caratula = $EnvioDte->getCaratula();
-        $Documentos = $EnvioDte->getDocumentos();
+        try {
+            $EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
+            $EnvioDte->loadXML(file_get_contents($file));
+            $Caratula = $EnvioDte->getCaratula();
+            $Documentos = $EnvioDte->getDocumentos();
 
-        $Docs = [];
-        foreach ($Documentos as $DTE) {
-            if (!$DTE->getDatos())
-                die('No se pudieron obtener los datos del DTE');
+            $Docs = [];
+            foreach ($Documentos as $DTE) {
+                if (!$DTE->getDatos())
+                    die('No se pudieron obtener los datos del DTE');
 
-            $datos = $DTE->getDatos();
-            $Docs[] =
-                [
-                    'id' => $DTE->getID(),
-                    'Datos' => $datos,
-                    'TED' => $DTE->getTED(),
-                ];
+                $datos = $DTE->getDatos();
+                $Docs[] =
+                    [
+                        'id' => $DTE->getID(),
+                        'Datos' => $datos,
+                        'TED' => $DTE->getTED(),
+                    ];
 
-            $factura = new Factura([
-                'id_doc' => $DTE->getID(),
-                'TipoDTE'  => $datos['Encabezado']['IdDoc']['TipoDTE'],
-                'Folio'  => $datos['Encabezado']['IdDoc']['Folio'],
-                'FchEmis'  => $datos['Encabezado']['IdDoc']['FchEmis'],
-                'TpoTranCompra'  => $datos['Encabezado']['IdDoc']['TpoTranCompra'],
-                'TpoTranVenta'  => $datos['Encabezado']['IdDoc']['TpoTranVenta'],
-                'FmaPago'  => $datos['Encabezado']['IdDoc']['FmaPago'],
-                'RUTEmisor'  => $datos['Encabezado']['Emisor']['RUTEmisor'],
-                'RznSocEmisor'  => $datos['Encabezado']['Emisor']['RznSoc'],
-                'GiroEmis'  => $datos['Encabezado']['Emisor']['GiroEmis'],
-                'TelefonoEmisor'  => $datos['Encabezado']['Emisor']['Telefono'],
-                'CorreoEmisor'  => $datos['Encabezado']['Emisor']['CorreoEmisor'],
-                'Acteco'  => $datos['Encabezado']['Emisor']['Acteco'],
-                'CdgSIISucur'  => $datos['Encabezado']['Emisor']['CdgSIISucur'],
-                'DirOrigen'  => $datos['Encabezado']['Emisor']['DirOrigen'],
-                'CmnaOrigen'  => $datos['Encabezado']['Emisor']['CmnaOrigen'],
-                'CiudadOrigen'  => $datos['Encabezado']['Emisor']['CiudadOrigen'],
-                'RUTRecep'  => $datos['Encabezado']['Receptor']['RUTRecep'],
-                'RznSocRecep'  => $datos['Encabezado']['Receptor']['RznSocRecep'],
-                'GiroRecep'  => $datos['Encabezado']['Receptor']['GiroRecep'],
-                'ContactoRecep'  => $datos['Encabezado']['Receptor']['Contacto'],
-                'DirRecep'  => $datos['Encabezado']['Receptor']['DirRecep'],
-                'CmnaRecep'  => $datos['Encabezado']['Receptor']['CmnaRecep'],
-                'CiudadRecep'  => $datos['Encabezado']['Receptor']['CiudadRecep'],
-                'RUTSolicita'  => $datos['Encabezado']['RUTSolicita'],
-                'MntNeto'  => $datos['Encabezado']['Totales']['MntNeto'],
-                'TasaIVA'  => $datos['Encabezado']['Totales']['TasaIVA'],
-                'IVA'  => $datos['Encabezado']['Totales']['IVA'],
-                'MntTotal'  => $datos['Encabezado']['Totales']['MntTotal'],
-                'Detalles'  => $datos['Detalle']
-            ]);
-            //$factura->Detalles = 
-            $factura->save();
+                $factura = new Factura([
+                    'id_doc' => $DTE->getID(),
+                    'TipoDTE'  => $datos['Encabezado']['IdDoc']['TipoDTE'],
+                    'Folio'  => $datos['Encabezado']['IdDoc']['Folio'],
+                    'FchEmis'  => $datos['Encabezado']['IdDoc']['FchEmis'],
+                    'TpoTranCompra'  => isset($datos['Encabezado']['IdDoc']['TpoTranCompra'])
+                        ? $datos['Encabezado']['IdDoc']['TpoTranCompra']
+                        : null,
+                    'TpoTranVenta'  => isset($datos['Encabezado']['IdDoc']['TpoTranVenta'])
+                        ? $datos['Encabezado']['IdDoc']['TpoTranVenta']
+                        : null,
+                    'FmaPago'  => isset($datos['Encabezado']['IdDoc']['FmaPago'])
+                        ? $datos['Encabezado']['IdDoc']['FmaPago']
+                        : null,
+                    'RUTEmisor'  => isset($datos['Encabezado']['Emisor']['RUTEmisor'])
+                        ? $datos['Encabezado']['Emisor']['RUTEmisor']
+                        : null,
+                    'RznSocEmisor'  => isset($datos['Encabezado']['Emisor']['RznSoc'])
+                        ? $datos['Encabezado']['Emisor']['RznSoc']
+                        : null,
+                    'GiroEmis'  => isset($datos['Encabezado']['Emisor']['GiroEmis'])
+                        ? $datos['Encabezado']['Emisor']['GiroEmis']
+                        : null,
+                    'TelefonoEmisor'  => isset($datos['Encabezado']['Emisor']['Telefono'])
+                        ? $datos['Encabezado']['Emisor']['Telefono']
+                        : null,
+                    'CorreoEmisor'  => isset($datos['Encabezado']['Emisor']['CorreoEmisor'])
+                        ? $datos['Encabezado']['Emisor']['CorreoEmisor']
+                        : null,
+                    'Acteco'  => isset($datos['Encabezado']['Emisor']['Acteco'])
+                        ? $datos['Encabezado']['Emisor']['Acteco']
+                        : null,
+                    'CdgSIISucur'  => isset($datos['Encabezado']['Emisor']['CdgSIISucur'])
+                        ? $datos['Encabezado']['Emisor']['CdgSIISucur']
+                        : null,
+                    'DirOrigen'  => isset($datos['Encabezado']['Emisor']['DirOrigen'])
+                        ? $datos['Encabezado']['Emisor']['DirOrigen']
+                        : null,
+                    'CmnaOrigen'  => isset($datos['Encabezado']['Emisor']['CmnaOrigen'])
+                        ? $datos['Encabezado']['Emisor']['CmnaOrigen']
+                        : null,
+                    'CiudadOrigen'  => isset($datos['Encabezado']['Emisor']['CiudadOrigen'])
+                        ? $datos['Encabezado']['Emisor']['CiudadOrigen']
+                        : null,
+                    'RUTRecep'  => isset($datos['Encabezado']['Receptor']['RUTRecep'])
+                        ? $datos['Encabezado']['Receptor']['RUTRecep']
+                        : null,
+                    'RznSocRecep'  => isset($datos['Encabezado']['Receptor']['RznSocRecep'])
+                        ? $datos['Encabezado']['Receptor']['RznSocRecep']
+                        : null,
+                    'GiroRecep'  => isset($datos['Encabezado']['Receptor']['GiroRecep'])
+                        ? $datos['Encabezado']['Receptor']['GiroRecep']
+                        : null,
+                    'ContactoRecep'  => isset($datos['Encabezado']['Receptor']['Contacto'])
+                        ? $datos['Encabezado']['Receptor']['Contacto']
+                        : null,
+                    'DirRecep'  => isset($datos['Encabezado']['Receptor']['DirRecep'])
+                        ? $datos['Encabezado']['Receptor']['DirRecep']
+                        : null,
+                    'CmnaRecep'  => isset($datos['Encabezado']['Receptor']['CmnaRecep'])
+                        ? $datos['Encabezado']['Receptor']['CmnaRecep']
+                        : null,
+                    'CiudadRecep'  => isset($datos['Encabezado']['Receptor']['CiudadRecep'])
+                        ? $datos['Encabezado']['Receptor']['CiudadRecep']
+                        : null,
+                    'RUTSolicita'  => isset($datos['Encabezado']['RUTSolicita'])
+                        ? $datos['Encabezado']['RUTSolicita']
+                        : null,
+                    'MntNeto'  => $datos['Encabezado']['Totales']['MntNeto'],
+                    'TasaIVA'  => isset($datos['Encabezado']['Totales']['TasaIVA'])
+                        ? $datos['Encabezado']['Totales']['TasaIVA']
+                        : null,
+                    'IVA'  => $datos['Encabezado']['Totales']['IVA'],
+                    'MntTotal'  => $datos['Encabezado']['Totales']['MntTotal'],
+                    'Detalles'  => $datos['Detalle']
+                ]);
+                //$factura->Detalles = 
+                $factura->save();
+            }
+            $dir = Yii::getAlias('@processed') . DIRECTORY_SEPARATOR
+                . substr($Caratula['TmstFirmaEnv'], 0, 10) . '_' . $Caratula['RutEmisor'] . '_' . $Caratula['RutReceptor'];
+
+            if (!is_dir($dir)) {
+                mkdir($dir);
+            }
+            if (copy($file,  $dir . DIRECTORY_SEPARATOR  . 'dte_' . $Caratula['RutEmisor'] . '_' . $DTE->getID() . '.xml'))
+                FileHelper::unlink($file);
+        } catch (\Throwable $th) {
+            echo "File " . $file . " \n";
+            echo $th->getMessage() . " \n";
         }
-        $dir = Yii::getAlias('@processed') . DIRECTORY_SEPARATOR
-            . substr($Caratula['TmstFirmaEnv'], 0, 10) . '_' . $Caratula['RutEmisor'] . '_' . $Caratula['RutReceptor'];
-
-        if (!is_dir($dir)) {
-            mkdir($dir);
-        }
-        if (copy($file,  $dir . DIRECTORY_SEPARATOR  . 'dte_' . $Caratula['RutEmisor'] . '_' . $DTE->getID() . '.xml'))
-            FileHelper::unlink($file);
-
         return [
             'Caratula' => $Caratula,
             'Documentos' => $Docs
