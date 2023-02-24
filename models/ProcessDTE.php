@@ -103,13 +103,14 @@ class ProcessDTE
     }
     public static function processFile($file = 'EnvMiPERCP1523907049.xml')
     {
+        $Docs = [];
+        $Caratula = null;
         try {
             $EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
             $EnvioDte->loadXML(file_get_contents($file));
             $Caratula = $EnvioDte->getCaratula();
             $Documentos = $EnvioDte->getDocumentos();
 
-            $Docs = [];
             foreach ($Documentos as $DTE) {
                 if (!$DTE->getDatos())
                     die('No se pudieron obtener los datos del DTE');
