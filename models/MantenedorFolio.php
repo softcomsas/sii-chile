@@ -92,7 +92,7 @@ class MantenedorFolio extends \yii\db\ActiveRecord
     public function extraFields()
     {
         $extra = [];
-        //$extra['cafs'] = 'cafs';
+        $extra['cafs'] = 'cafs';
         return $extra;
     }
 
@@ -180,6 +180,7 @@ class MantenedorFolio extends \yii\db\ActiveRecord
         if ($caf) {
             if ($this->siguiente_folio < $caf->hasta) {
                 $this->siguiente_folio++;
+                $this->total_disponible--;
                 return $this->save(false);
             }
             $caf->estado = Caf::ESTADO_USADO;
@@ -190,9 +191,11 @@ class MantenedorFolio extends \yii\db\ActiveRecord
             $nuevoCaf->estado = Caf::ESTADO_EN_USO;
             $nuevoCaf->save();
             $this->siguiente_folio = $nuevoCaf->desde;
+            $this->total_disponible--;
             return $this->save(false);
         }
         $this->siguiente_folio = null;
+        $this->total_disponible = 0;
         return $this->save(false);
     }
     public function getSecuencia()

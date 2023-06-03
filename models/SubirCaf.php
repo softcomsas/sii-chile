@@ -63,8 +63,11 @@ class SubirCaf extends Model
         $model->meses_autorizados = (int) $this->_folio->getMesesAutorizacion();
         $model->url_xml = $this->_fileName;
         $model->estado = $mantenedor->cafEnUso ? Caf::ESTADO_DISPONIBLE : Caf::ESTADO_EN_USO;
-        if($model->save() && !$mantenedor->cafEnUso){
-            $mantenedor->siguiente_folio = $model->desde;
+        if($model->save()){
+            if (!$mantenedor->cafEnUso) {
+                $mantenedor->siguiente_folio = $model->desde;
+            }
+            $mantenedor->total_disponible += $model->hasta - $model->desde;
             $mantenedor->save();
         }
         Yii::error($model->errors);
@@ -86,6 +89,7 @@ class SubirCaf extends Model
                 $mantenedor->multiplicador = 5;
                 $mantenedor->rango_maximo = 100;
                 $mantenedor->total_utilizado = 0;
+                $mantenedor->total_disponible = 0;
                 $mantenedor->alerta = 50;
                 $mantenedor->save();
                 Yii::error($mantenedor->errors, 'mantenedor->errors');
