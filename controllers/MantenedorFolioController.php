@@ -92,6 +92,18 @@ class MantenedorFolioController extends \yii\rest\Controller
 
         Yii::$app->getResponse()->setStatusCode(204);
     }
+    public function actionMarcarAlerta($rut_empresa, $id)
+    {
+        MantenedorFolio::updateAll(
+            ['notif_alerta' => time()], 
+            [
+                'id' => explode(',', $id),
+                'rut_empresa' => $rut_empresa
+            ]
+        );
+
+        Yii::$app->getResponse()->setStatusCode(204);
+    }
 
     public function actionSelect()
     {

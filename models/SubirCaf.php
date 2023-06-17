@@ -68,6 +68,7 @@ class SubirCaf extends Model
                 $mantenedor->siguiente_folio = $model->desde;
             }
             $mantenedor->total_disponible += $model->hasta - $model->desde;
+            $mantenedor->notif_alerta = null;
             $mantenedor->save();
         }
         Yii::error($model->errors);

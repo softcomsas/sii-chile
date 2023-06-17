@@ -89,6 +89,8 @@ $config = [
                     ],
                     'extraPatterns' => [
                         'POST subir-caf' => 'subir-caf',
+                        'select' => 'select',
+                        'marcar-alerta' => 'marcar-alerta',
                         'OPTIONS subir-caf' => 'options'
                     ]
                 ],
