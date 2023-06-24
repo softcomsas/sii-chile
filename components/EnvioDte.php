@@ -147,9 +147,39 @@ class EnvioDte extends Component
         $this->getMantenedor($tipo)->save(false);
         return $track_id;
     }
+    /** 
+     * @param Dte[] $dtes
+    */
     private function sendNotaCredito($dtes)
     {
         $firma = $this->getFirma();
+
+         // generar sobre con el envío del DTE y enviar al SII
+         $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
+         foreach ($dtes as $dte) {
+            $envioDTE->agregar($dte);
+        }
+         $envioDTE->setFirma($firma);
+         $envioDTE->setCaratula([
+            //'RutEnvia' => '11222333-4', // se obtiene de la firma
+            'RutReceptor' => '60803000-K',
+            'FchResol' => '2014-08-22',
+            'NroResol' => 80,
+        ]);
+         $envioDTE->generar();
+         if (!$envioDTE->schemaValidate()) $this->handlerError();
+ 
+         $track_id = $envioDTE->enviar();
+         if (!$track_id)  $this->handlerError();
+ 
+         $this->_registro->track_id = $track_id;
+         $this->_registro->estado = FacturaEmitida::ESTADO_ENVIADO;
+         $this->_registro->save(false);
+         return $track_id;
+
+
+
+
         // crear objeto para consumo de folios
         $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
         $ConsumoFolio->setFirma($firma);
