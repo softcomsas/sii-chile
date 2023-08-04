@@ -9,8 +9,8 @@ use Yii;
  *
  * @property int $id
  * @property int $id_factura
- * @property int|null $TpoCodigo
- * @property int|null $VlrCodigo
+ * @property string|null $TpoCodigo
+ * @property string|null $VlrCodigo
  * @property string|null $NmbItem
  * @property float|null $QtyItem
  * @property string|null $UnmdItem
@@ -38,9 +38,9 @@ class FacturaDetalle extends \yii\db\ActiveRecord
     {
         return [
             [['id_factura'], 'required'],
-            [['id_factura', 'VlrCodigo'], 'integer'],
+            [['id_factura'], 'integer'],
             [['QtyItem', 'PrcItem', 'DescuentoPct', 'DescuentoMonto', 'MontoItem'], 'number'],
-            [['NmbItem', 'TpoCodigo'], 'string', 'max' => 255],
+            [['NmbItem', 'TpoCodigo', 'VlrCodigo'], 'string', 'max' => 255],
             [['UnmdItem'], 'string', 'max' => 10],
             [['id_factura'], 'exist', 'skipOnError' => true, 'targetClass' => Factura::class, 'targetAttribute' => ['id_factura' => 'id']],
         ];

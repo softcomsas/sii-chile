@@ -2,10 +2,13 @@
 
 namespace app\components;
 
+use app\components\sii\SiiClientBoleta;
 use yii\base\Component;
 use app\traits\DteTrait;
 use app\models\FacturaEmitida;
+use app\models\MantenedorFolio;
 use sasco\LibreDTE\Sii\Dte;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 class EnvioDte extends Component
@@ -99,23 +102,31 @@ class EnvioDte extends Component
     }
     private function sendBoleta($dtes)
     {
+        $tipo = 39;
         $firma = $this->getFirma();
-        // crear objeto para consumo de folios
-        $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
-        $ConsumoFolio->setFirma($firma);
-        $ConsumoFolio->setDocumentos([39, 41, 61]);
 
-        // agregar detalle de boleta
+        $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
         foreach ($dtes as $dte) {
-            $ConsumoFolio->agregar($dte->getResumen());
+            $envioDTE->agregar($dte);
         }
-        $ConsumoFolio->setCaratula($this->generarCaratula(39));
+        $envioDTE->setFirma($firma);
+        $envioDTE->setCaratula($this->generarCaratula($tipo));
+        $envioDTE->generar();
+        if (!$envioDTE->schemaValidate()) $this->handlerError();
 
-        // generar, validar schema y mostrar XML
-        $xml = $ConsumoFolio->generar();
-        if (!$ConsumoFolio->schemaValidate()) $this->handlerError();
+        $xml = $envioDTE->generar();
 
-        $track_id = $ConsumoFolio->enviar();
+        //file_put_contents('C:\xampp\htdocs\sii-chile\upload\EnvioBOLETA.xml', $xml);
+
+        $client = new SiiClientBoleta();
+        $result = $client->enviarBoleta($this->rut_empresa, $this->rut_empresa, $xml);
+
+        Yii::info($result, 'Envío Boleta Result');
+
+        // si hubo algún error al enviar al servidor mostrar
+        if ($result === false) $this->handlerError();
+
+        $track_id = $result['trackid'] ?? null;
         if (!$track_id)  $this->handlerError();
 
         $folios = ArrayHelper::getColumn($dtes, function ($dte) {
@@ -128,18 +139,59 @@ class EnvioDte extends Component
             ],
             [
                 'rut_empresa' => $this->rut_empresa,
-                'tipo' => 39,
+                'tipo' => $tipo,
                 'folio' => $folios,
                 'track_id' => null
             ]
         );
+        $this->getMantenedor($tipo)->save(false);
         return $track_id;
     }
+    /** 
+     * @param Dte[] $dtes
+     */
     private function sendNotaCredito($dtes)
     {
         $firma = $this->getFirma();
+        $trackIds = [];
+        foreach ($dtes as $dte) {
+            // generar sobre con el envío del DTE y enviar al SII
+            $envioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
+            $envioDTE->agregar($dte);
+
+            $envioDTE->setFirma($firma);
+            $envioDTE->setCaratula([
+                //'RutEnvia' => '11222333-4', // se obtiene de la firma
+                'RutReceptor' => '60803000-K',
+                'FchResol' => '2014-08-22',
+                'NroResol' => 80,
+            ]);
+            $envioDTE->generar();
+            if (!$envioDTE->schemaValidate()) $this->handlerError();
+
+            $track_id = $envioDTE->enviar();
+            if (!$track_id)  $this->handlerError();
+
+            $trackIds[] = $track_id;
+            FacturaEmitida::updateAll(
+                [
+                    'track_id' => $track_id,
+                    'estado' => FacturaEmitida::ESTADO_ENVIADO,
+                ],
+                [
+                    'rut_empresa' => $this->rut_empresa,
+                    'tipo' => 61,
+                    'folio' => $dte->getFolio(),
+                    'track_id' => null
+                ]
+            );
+        }
+
+        return $trackIds;
+
+
         // crear objeto para consumo de folios
-        $ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
+        /*$ConsumoFolio = new \sasco\LibreDTE\Sii\ConsumoFolio();
         $ConsumoFolio->setFirma($firma);
         $ConsumoFolio->setDocumentos([39, 41, 61]);
 
@@ -171,14 +223,14 @@ class EnvioDte extends Component
                 'track_id' => null
             ]
         );
-        return $track_id;
+        return $track_id;*/
     }
 
     private $_mantenedor = [];
-    public function getMantenedor($tipo)
+    public function getMantenedor($tipo): MantenedorFolio
     {
         if (!isset($this->_mantenedor[$tipo])) {
-            $this->_mantenedor[$tipo] = \app\models\MantenedorFolio::findOne([
+            $this->_mantenedor[$tipo] = MantenedorFolio::findOne([
                 'rut_empresa' => $this->rut_empresa,
                 'codigo_documento' => $tipo,
                 'ambiente' => $this->ambiente
@@ -190,14 +242,14 @@ class EnvioDte extends Component
     private function generarCaratula($tipo)
     {
         switch ($tipo) {
-            case 39:
+                /*case 39:
                 return [
                     'RutEmisor' => $this->rut_empresa,
                     'FchResol' => '2014-08-22',
                     'NroResol' => 80,
                     'SecEnvio' => $this->getMantenedor($tipo)->getSecuencia(),
                 ];
-                break;
+                break;*/
 
             case 61:
                 return [

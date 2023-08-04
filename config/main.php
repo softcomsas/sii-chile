@@ -13,6 +13,7 @@ $config = [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
+        '@dteEliminados' => '@app/upload/skiped',
         '@processed' => '@app/upload/processed',
         '@unprocessed' => '@app/upload/unprocessed',
     ],
@@ -88,6 +89,8 @@ $config = [
                     ],
                     'extraPatterns' => [
                         'POST subir-caf' => 'subir-caf',
+                        'select' => 'select',
+                        'marcar-alerta' => 'marcar-alerta',
                         'OPTIONS subir-caf' => 'options'
                     ]
                 ],
@@ -105,16 +108,17 @@ $config = [
             'Access-Control-Expose-Headers' => ['*'],
         ],
     ],
-    //'as Authenticator' =>[ 'class' => \sizeg\jwt\JwtHttpBearerAuth::class, 'optional' => ['debug/*']],
-    'as Authenticator' => [
-        'class' => \app\components\CompositeAuth::class,
-        'optional' => ['debug/*', 'emitir/pendientes'],
-        'authMethods' => [
-            \app\components\QueryHashAuth::class,
-            \sizeg\jwt\JwtHttpBearerAuth::class,
-            //\yii\filters\auth\HttpHeaderAuth::class,
-        ]
-    ],
+    // 'as Authenticator' => [
+    //     'class' => \app\components\CompositeAuth::class,
+    //     'optional' => ['debug/*', 'emitir/pendientes'],
+    //     'authMethods' => [
+    //         [
+    //             'class' => \app\components\QueryHashAuth::class,
+    //             'key' => $params['AUTH_HASH.KEY']
+    //         ],
+    //         \sizeg\jwt\JwtHttpBearerAuth::class,
+    //     ]
+    // ],
     'params' => $params,
 ];
 

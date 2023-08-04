@@ -53,7 +53,7 @@ class MantenedorFolio extends \yii\db\ActiveRecord
     {
         return [
             [['rut_empresa', 'codigo_documento', 'tipo_documento', 'ambiente'], 'required'],
-            [['codigo_documento', 'siguiente_folio', 'total_disponible', 'total_utilizado', 'alerta', 'multiplicador', 'rango_maximo', 'sec_envio'], 'integer'],
+            [['codigo_documento', 'siguiente_folio', 'total_disponible', 'total_utilizado', 'alerta', 'multiplicador', 'rango_maximo', 'sec_envio', 'repetir_alerta', 'notif_alerta'], 'integer'],
             [['rut_empresa'], 'string', 'max' => 10],
             [['tipo_documento'], 'string', 'max' => 45],
             [
@@ -92,7 +92,7 @@ class MantenedorFolio extends \yii\db\ActiveRecord
     public function extraFields()
     {
         $extra = [];
-        //$extra['cafs'] = 'cafs';
+        $extra['cafs'] = 'cafs';
         return $extra;
     }
 
@@ -124,6 +124,18 @@ class MantenedorFolio extends \yii\db\ActiveRecord
                 }
             }
         }
+        if (isset($requestParams['conAlerta'])) {
+            $query->andWhere('total_disponible <= alerta')
+                ->andWhere([
+                    'OR',
+                    'notif_alerta IS NULL',
+                    '(:time - notif_alerta) > repetir_alerta',
+                ],
+            [
+                ':time' => time()
+            ]);
+        }
+
 
         return $query;
     }
@@ -180,6 +192,7 @@ class MantenedorFolio extends \yii\db\ActiveRecord
         if ($caf) {
             if ($this->siguiente_folio < $caf->hasta) {
                 $this->siguiente_folio++;
+                $this->total_disponible--;
                 return $this->save(false);
             }
             $caf->estado = Caf::ESTADO_USADO;
@@ -187,10 +200,14 @@ class MantenedorFolio extends \yii\db\ActiveRecord
         }
         $nuevoCaf = $this->siguienteCaf;
         if ($nuevoCaf) {
+            $nuevoCaf->estado = Caf::ESTADO_EN_USO;
+            $nuevoCaf->save();
             $this->siguiente_folio = $nuevoCaf->desde;
+            $this->total_disponible--;
             return $this->save(false);
         }
         $this->siguiente_folio = null;
+        $this->total_disponible = 0;
         return $this->save(false);
     }
     public function getSecuencia()

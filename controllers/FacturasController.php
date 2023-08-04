@@ -71,6 +71,17 @@ class FacturasController extends Controller
             'inline' => true
         ]);
     }
+    public function actionPdf3($rut)
+    {
+        $params = Yii::$app->request->get();
+        $params['rut'] = (string) $rut;
+        $models = FacturaEmitida::selectAll($params);
+        foreach ($models as $model) {
+            $pdf = $model->getPdf($model->getPath());
+        }
+
+        return count($models);
+    }
     public function actionGenerarPdf()
     {
         $model = new EmitirFactura(['scenario' => EmitirFactura::SCENARIO_NOTA]);

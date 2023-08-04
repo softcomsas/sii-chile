@@ -178,12 +178,18 @@ class EmitirNotaCredito extends Model
     {
         $detalle = [];
         foreach ($this->productos as $key => $producto) {
-            $detalle[] = [
+            $row = [
                 'CdgItem' => $producto['codigo'],
                 'NmbItem' => $producto['producto'],
                 'QtyItem' => $producto['cantidad'],
                 'PrcItem' => $producto['precio'],
             ];
+
+            if (isset($producto['por_cto_descuento'])) {
+                $row['DescuentoPct'] = $producto['por_cto_descuento'];
+            }
+
+            $detalle[] = $row;
         }
         return [
             'Encabezado' => [

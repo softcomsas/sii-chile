@@ -6,6 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use app\models\ProcessDTE;
 use app\components\sii\SiiClient;
+use app\components\sii\SiiClientBoleta;
 use app\models\Factura;
 
 class SiiController extends Controller
@@ -78,5 +79,28 @@ class SiiController extends Controller
         return [
             'token' => $token
         ];
+    }
+
+    public function actionEnvioBoleta()
+    {
+        $cliente = new SiiClient();
+        $cliente->ObtenerSemillaBoleta();
+
+        $token = $cliente->ObtenerTokenBoleta();
+
+        $usuario = '7555986-0';
+        $empresa = '7555986-0';
+        $dte = file_get_contents('C:\xampp\htdocs\sii-chile\upload\EnvioBOLETA.xml');
+
+        return $cliente->enviarBoleta($usuario, $empresa, $dte, $token);
+    }
+
+    public function actionEstadoEnvioBoleta($trackId)
+    {
+        $cliente = new SiiClientBoleta();
+
+        $empresa = '7555986-0';
+
+        return $cliente->estadoEnvioBoleta($empresa, $trackId);
     }
 }

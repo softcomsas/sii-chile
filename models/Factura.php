@@ -61,6 +61,8 @@ class Factura extends \yii\db\ActiveRecord
             [['MntNeto', 'TasaIVA', 'IVA', 'MntTotal'], 'number'],
             [['estado'], 'integer'],
             [['id_doc'], 'string', 'max' => 50],
+            [['TipoDTE'], 'in', 'range' => Yii::$app->params['TIPOS_DTE_PERMITIDOS']],
+            [['RUTEmisor'], 'in', 'not' => true, 'range' => Yii::$app->params['RUT_OMITIDOS']],
             [['TipoDTE', 'Folio', 'FchEmis', 'RUTEmisor', 'RUTRecep', 'RUTSolicita'], 'string', 'max' => 10],
             [['TpoTranCompra', 'TpoTranVenta', 'FmaPago'], 'string', 'max' => 1],
             [['RznSocEmisor', 'GiroEmis', 'DirOrigen', 'CmnaOrigen', 'CiudadOrigen', 'RznSocRecep', 'GiroRecep', 'ContactoRecep', 'DirRecep', 'CmnaRecep', 'CiudadRecep'], 'string', 'max' => 255],

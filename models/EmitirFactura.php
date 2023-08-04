@@ -179,7 +179,7 @@ class EmitirFactura extends Model
                 'QtyItem' => $producto['cantidad'],
                 'PrcItem' => $producto['precio'],
             ];
-            if ($producto['por_cto_descuento']) {
+            if (isset($producto['por_cto_descuento'])) {
                 $row['DescuentoPct'] = $producto['por_cto_descuento'];
             }
             $detalle[] = $row;

@@ -4,6 +4,7 @@ namespace app\models;
 
 use sasco\LibreDTE\Sii\Dte;
 use Yii;
+use yii\helpers\FileHelper;
 use yii\web\NotAcceptableHttpException;
 
 /**
@@ -73,6 +74,7 @@ class FacturaEmitida extends \yii\db\ActiveRecord
             'rut_empresa' => ['like', 'rut_empresa'],
             'rut_receptor' => ['like', 'rut_receptor'],
             'fecha' => ['like', 'fecha'],
+            'fecha_min' => ['>=', 'fecha'],
             'track_id' => ['track_id'],
             'folio' => ['folio'],
             'tipo' => ['tipo'],
@@ -143,14 +145,16 @@ class FacturaEmitida extends \yii\db\ActiveRecord
         }
         return $Documentos[0];
     }
-    public function getPdf()
+    public function getPdf($dir = null)
     {
         // directorio temporal para guardar los PDF
-        $dir = sys_get_temp_dir() . '/dte-pdf';
-        if (is_dir($dir))
-            \sasco\LibreDTE\File::rmdir($dir);
-        if (!mkdir($dir))
-            die('No fue posible crear directorio temporal para DTEs');
+        if (!$dir) {
+            $dir = sys_get_temp_dir() 
+            . DIRECTORY_SEPARATOR . $this->fecha
+            . DIRECTORY_SEPARATOR . '/dte-pdf';
+        }
+        if (!is_dir($dir))
+            FileHelper::createDirectory($dir);
 
         $DTE = $this->getDte();
         $pdf = new \sasco\LibreDTE\Sii\Dte\PDF\Dte(80); // =false hoja carta, =true papel contínuo (false por defecto si no se pasa)
