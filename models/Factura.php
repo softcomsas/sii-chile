@@ -163,7 +163,8 @@ class Factura extends \yii\db\ActiveRecord
      */
     public static function query(array $requestParams)
     {
-        $query = self::find();
+        $query = self::find()
+            ->with(['facturaDetalles', 'facturaDscRcgs']);
 
         $columns = [
             'id' => ['id'],
