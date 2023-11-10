@@ -40,10 +40,12 @@ use Yii;
  * @property int $estado
  *
  * @property FacturaDetalle[] $facturaDetalles
+ * @property FacturaDscRcg[] $facturaDscRcgs
  */
 class Factura extends \yii\db\ActiveRecord
 {
     public $Detalles;
+    public $dscRcgs;
     /**
      * {@inheritdoc}
      */
@@ -93,6 +95,14 @@ class Factura extends \yii\db\ActiveRecord
                     $newDetalle->save();
                 }
             }
+            if (!isset($this->dscRcgs[0]))
+                $this->dscRcgs = [$this->dscRcgs];
+            foreach ($this->dscRcgs as $dscRcg) {
+                $newDscRcg = new FacturaDscRcg();
+                $newDscRcg->id_factura = $this->id;
+                $newDscRcg->load($dscRcg, '');
+                $newDscRcg->save();
+            }
         }
     }
 
@@ -139,6 +149,7 @@ class Factura extends \yii\db\ActiveRecord
     {
         $fields = parent::fields();
         $fields['Detalles'] = 'facturaDetalles';
+        $fields['dscRcgs'] = 'facturaDscRcgs';
         return $fields;
     }
     public function extraFields()
@@ -226,5 +237,14 @@ class Factura extends \yii\db\ActiveRecord
     public function getFacturaDetalles()
     {
         return $this->hasMany(FacturaDetalle::class, ['id_factura' => 'id']);
+    }
+    /**
+     * Gets query for [[FacturaDscRcgs]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFacturaDscRcgs()
+    {
+        return $this->hasMany(FacturaDscRcg::class, ['id_factura' => 'id']);
     }
 }

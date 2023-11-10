@@ -116,6 +116,8 @@ class ProcessDTE
                     die('No se pudieron obtener los datos del DTE');
 
                 $datos = $DTE->getDatos();
+                //return print_r($datos);
+                
                 $Docs[] =
                     [
                         'id' => $DTE->getID(),
@@ -199,7 +201,8 @@ class ProcessDTE
                             ? $datos['Encabezado']['Totales']['IVA']
                             : null,
                     'MntTotal'  => $datos['Encabezado']['Totales']['MntTotal'],
-                    'Detalles'  => $datos['Detalle']
+                    'Detalles'  => $datos['Detalle'],
+                    'dscRcgs'  => $datos['DscRcgGlobal'],
                 ]);
                 //$factura->Detalles = 
                 if (!$factura->save()) {
