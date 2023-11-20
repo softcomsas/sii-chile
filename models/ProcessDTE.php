@@ -202,7 +202,7 @@ class ProcessDTE
                             : null,
                     'MntTotal'  => $datos['Encabezado']['Totales']['MntTotal'],
                     'Detalles'  => $datos['Detalle'],
-                    'dscRcgs'  => $datos['DscRcgGlobal'],
+                    'dscRcgs'  => $datos['DscRcgGlobal'] ?? [],
                 ]);
                 //$factura->Detalles = 
                 if (!$factura->save()) {
