@@ -130,6 +130,7 @@ class ProcessDTE
                     'TipoDTE'  => $datos['Encabezado']['IdDoc']['TipoDTE'],
                     'Folio'  => $datos['Encabezado']['IdDoc']['Folio'],
                     'FchEmis'  => $datos['Encabezado']['IdDoc']['FchEmis'],
+                    'FchVenc'  => $datos['Encabezado']['IdDoc']['FchEmis'] ?? null,
                     'TpoTranCompra'  => isset($datos['Encabezado']['IdDoc']['TpoTranCompra'])
                         ? $datos['Encabezado']['IdDoc']['TpoTranCompra']
                         : null,
