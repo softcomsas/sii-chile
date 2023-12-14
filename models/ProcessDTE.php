@@ -117,7 +117,7 @@ class ProcessDTE
 
                 $datos = $DTE->getDatos();
                 //return print_r($datos);
-                
+
                 $Docs[] =
                     [
                         'id' => $DTE->getID(),
@@ -130,7 +130,7 @@ class ProcessDTE
                     'TipoDTE'  => $datos['Encabezado']['IdDoc']['TipoDTE'],
                     'Folio'  => $datos['Encabezado']['IdDoc']['Folio'],
                     'FchEmis'  => $datos['Encabezado']['IdDoc']['FchEmis'],
-                    'FchVenc'  => $datos['Encabezado']['IdDoc']['FchEmis'] ?? null,
+                    'FchVenc'  => self::findFechaVencimiento($datos['Encabezado']['IdDoc']['FchEmis'], $datos['Encabezado']['IdDoc']['FmaPago'] ?? null),
                     'TpoTranCompra'  => isset($datos['Encabezado']['IdDoc']['TpoTranCompra'])
                         ? $datos['Encabezado']['IdDoc']['TpoTranCompra']
                         : null,
@@ -199,8 +199,8 @@ class ProcessDTE
                         ? $datos['Encabezado']['Totales']['TasaIVA']
                         : null,
                     'IVA'  => isset($datos['Encabezado']['Totales']['IVA'])
-                            ? $datos['Encabezado']['Totales']['IVA']
-                            : null,
+                        ? $datos['Encabezado']['Totales']['IVA']
+                        : null,
                     'MntTotal'  => $datos['Encabezado']['Totales']['MntTotal'],
                     'Detalles'  => $datos['Detalle'],
                     'dscRcgs'  => $datos['DscRcgGlobal'] ?? [],
@@ -235,5 +235,23 @@ class ProcessDTE
             'Caratula' => $Caratula,
             'Documentos' => $Docs
         ];
+    }
+
+    protected static function findFechaVencimiento($fechaInicio, $formaPago)
+    {
+        switch ($formaPago) {
+            case 'xxxxxxxxx': //Crédito a 30 días
+                return date("Y-m-d", strtotime($fechaInicio . " +30 days"));
+
+            case '2': //Crédito a 60 días
+                return date("Y-m-d", strtotime($fechaInicio . " +60 days"));
+
+            case 'yyyyyyyy': //Crédito a 90 días
+                return date("Y-m-d", strtotime($fechaInicio . " +90 days"));
+
+            default:
+                return date("Y-m-d", strtotime($fechaInicio . " +30 days"));
+                //return $fechaInicio;
+        }
     }
 }
