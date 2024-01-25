@@ -37,6 +37,9 @@ class FacturaDetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['VlrCodigo'], 'default', 'value' => function(self $model){
+                return md5($model->NmbItem);
+            }],
             [['id_factura'], 'required'],
             [['id_factura'], 'integer'],
             [['QtyItem', 'PrcItem', 'DescuentoPct', 'DescuentoMonto', 'MontoItem'], 'number'],
