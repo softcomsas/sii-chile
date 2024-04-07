@@ -274,6 +274,22 @@ class EnvioDte extends Component
         foreach (\sasco\LibreDTE\Log::readAll() as $error) {
             $messageError .= $error->msg . '\n';
         }
+        try {
+            if (Yii::$app->params['EMAILS_SOPORTE']) {
+                $title = "Error - " .  'Fallo de envío de DTE';
+                $message = Yii::$app->mailer->compose('mensaje-html', [
+                    'type' => 'error',  //error, warning, info
+                    'title' => $title,
+                    'subtitle' => $messageError,
+                ])
+                    ->setFrom(Yii::$app->params['adminEmail'])
+                    ->setTo(Yii::$app->params['EMAILS_SOPORTE'])
+                    ->setSubject("Ayala: $title");
+                $message->send();
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
         throw new \Exception($messageError, 1);
     }
 }

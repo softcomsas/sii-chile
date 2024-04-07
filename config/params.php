@@ -21,4 +21,6 @@ return [
 
     'TIPOS_DTE_PERMITIDOS' => ['33', '34', '39', '41', '46'],
     'RUT_OMITIDOS' => [],
+
+    'EMAILS_SOPORTE' => [],
 ];
