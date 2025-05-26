@@ -80,7 +80,7 @@ class EmitirController extends Controller
     public function actionPdf2($rut, $tipo, $folio)
     {
         $model = FacturaEmitida::selectOne([
-            'rut' => (string) $rut,
+            'rut_empresa' => (string) $rut,
             'tipo' => (int) $tipo,
             'folio' => (int) $folio,
         ]);
