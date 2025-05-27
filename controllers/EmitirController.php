@@ -21,7 +21,7 @@ class EmitirController extends Controller
         ];
         return $actions;
     }
-    public function actionPendientes($rut_empresa = '7555986-0')
+    public function actionPendientes($rut_empresa = '77321084-5')
     {
         Yii::$app->sii->setEmpresa($rut_empresa);
         Yii::$app->sii->setAmbiente(Yii::$app->params['SII.AMBIENTE']);
@@ -42,7 +42,7 @@ class EmitirController extends Controller
         }
         return Yii::$app->sii->send();
     }
-    public function actionEstado($rut_empresa = '7555986-0', $trackid)
+    public function actionEstado($rut_empresa = '77321084-5', $trackid)
     {
         $cliente = new SiiClientBoleta();
         return $cliente->estadoEnvioBoleta($rut_empresa, $trackid);
