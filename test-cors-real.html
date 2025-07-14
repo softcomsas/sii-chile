@@ -6,7 +6,7 @@
     <title>Test CORS Real</title>
 </head>
 <body>
-    <h1>Test CORS desde http://sistema.ayalarepuestos.cl</h1>
+    <h1>Test CORS desde https://sistema.ayalarepuestos.cl</h1>
     <button onclick="testCors()">Test CORS Request</button>
     <div id="result"></div>
 
@@ -15,10 +15,12 @@
             const resultDiv = document.getElementById('result');
             
             try {
-                // Primera prueba: OPTIONS request
+                // Primera prueba: OPTIONS request - usar URL relativa para evitar mixed content
                 resultDiv.innerHTML = '<p>Enviando petición OPTIONS...</p>';
                 
-                const optionsResponse = await fetch('http://sistema.ayalarepuestos.cl/sii-chile/api/folio/mantenedor/subir-caf', {
+                const apiUrl = window.location.protocol + '//' + window.location.host + '/sii-chile/api/folio/mantenedor/subir-caf';
+                
+                const optionsResponse = await fetch(apiUrl, {
                     method: 'OPTIONS',
                     headers: {
                         'Origin': window.location.origin,
@@ -42,7 +44,7 @@
                 // Segunda prueba: POST request
                 resultDiv.innerHTML += '<p>Enviando petición POST...</p>';
                 
-                const postResponse = await fetch('http://sistema.ayalarepuestos.cl/sii-chile/api/folio/mantenedor/subir-caf', {
+                const postResponse = await fetch(apiUrl, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
