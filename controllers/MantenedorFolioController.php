@@ -24,14 +24,13 @@ class MantenedorFolioController extends \yii\rest\Controller
     {
         $behaviors = parent::behaviors();
         
-        // Configurar CORS específicamente para este controlador - versión simplificada
+        // Configurar CORS específicamente para este controlador - permitir todos los origins
         $behaviors['corsFilter'] = [
             'class' => \yii\filters\Cors::class,
             'cors' => [
-                'Origin' => ['*'], // Temporalmente permitir todo para debugging
+                'Origin' => ['*'], // Permitir todos los origins
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
                 'Access-Control-Request-Headers' => ['*'],
-                'Access-Control-Allow-Credentials' => false, // Desactivar credentials temporalmente
                 'Access-Control-Max-Age' => 86400,
             ],
         ];
@@ -45,32 +44,15 @@ class MantenedorFolioController extends \yii\rest\Controller
     public function actionOptions()
     {
         $response = Yii::$app->response;
-        $request = Yii::$app->request;
-        
-        // Obtener el origin de la petición
-        $origin = $request->headers->get('Origin', 'No origin header');
-        
-        // Log detallado para debug
-        Yii::info("=== DEBUG CORS ===", 'cors-debug');
-        Yii::info("Origin recibido: " . $origin, 'cors-debug');
-        Yii::info("Method: " . $request->method, 'cors-debug');
-        Yii::info("URL: " . $request->url, 'cors-debug');
-        
-        // Configurar headers CORS manualmente para debugging
         $response->statusCode = 200;
+        
+        // Configurar headers CORS para permitir todos los origins
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, ambiente');
         $response->headers->set('Access-Control-Max-Age', '86400');
         
-        Yii::info("Headers configurados manualmente", 'cors-debug');
-        
-        return [
-            'status' => 'OK',
-            'origin' => $origin,
-            'method' => $request->method,
-            'timestamp' => date('Y-m-d H:i:s')
-        ];
+        return '';
     }
 
     public function getAmbiente()

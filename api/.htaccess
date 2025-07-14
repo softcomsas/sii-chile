@@ -1,10 +1,9 @@
 RewriteEngine on
 
-# Configuración CORS
-Header always set Access-Control-Allow-Origin "http://localhost:4200"
+# Configuración CORS - permitir todos los origins
+Header always set Access-Control-Allow-Origin "*"
 Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
 Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, ambiente"
-Header always set Access-Control-Allow-Credentials "true"
 Header always set Access-Control-Max-Age "86400"
 
 # Responder a peticiones OPTIONS con status 200
