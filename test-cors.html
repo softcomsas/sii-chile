@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CORS - Subir CAF</title>
+</head>
+<body>
+    <h1>Test CORS para endpoint subir-caf</h1>
+    <button onclick="testOptions()">Test OPTIONS Request</button>
+    <button onclick="testPost()">Test POST Request</button>
+    <div id="result"></div>
+
+    <script>
+        const API_BASE = 'http://localhost/api';
+        
+        async function testOptions() {
+            try {
+                const response = await fetch(`${API_BASE}/folio/mantenedor/subir-caf`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'http://localhost:4200',
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type, ambiente'
+                    }
+                });
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>OPTIONS Response:</h3>
+                    <p>Status: ${response.status}</p>
+                    <p>CORS Headers:</p>
+                    <ul>
+                        <li>Access-Control-Allow-Origin: ${response.headers.get('Access-Control-Allow-Origin')}</li>
+                        <li>Access-Control-Allow-Methods: ${response.headers.get('Access-Control-Allow-Methods')}</li>
+                        <li>Access-Control-Allow-Headers: ${response.headers.get('Access-Control-Allow-Headers')}</li>
+                    </ul>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testPost() {
+            try {
+                const response = await fetch(`${API_BASE}/folio/mantenedor/subir-caf`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ambiente': 'DEV'
+                    },
+                    body: JSON.stringify({
+                        test: 'data'
+                    })
+                });
+                
+                const data = await response.text();
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>POST Response:</h3>
+                    <p>Status: ${response.status}</p>
+                    <p>Response: ${data}</p>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

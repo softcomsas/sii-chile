@@ -17,6 +17,43 @@ class MantenedorFolioController extends \yii\rest\Controller
     /** @var MantenedorFolio  */
     public $modelClass = MantenedorFolio::class;
 
+    /**
+     * Configurar behaviors para CORS
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        
+        // Configurar CORS específicamente para este controlador
+        $behaviors['corsFilter'] = [
+            'class' => \yii\filters\Cors::class,
+            'cors' => [
+                'Origin' => ['http://localhost:4200', 'http://127.0.0.1:4200'],
+                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+                'Access-Control-Request-Headers' => ['*'],
+                'Access-Control-Allow-Credentials' => true,
+                'Access-Control-Max-Age' => 86400,
+            ],
+        ];
+        
+        return $behaviors;
+    }
+
+    /**
+     * Manejar peticiones OPTIONS para CORS preflight
+     */
+    public function actionOptions()
+    {
+        $response = Yii::$app->response;
+        $response->statusCode = 200;
+        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:4200');
+        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, ambiente');
+        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        $response->headers->set('Access-Control-Max-Age', '86400');
+        return '';
+    }
+
     public function getAmbiente()
     {
         $ambiente = Yii::$app->request->getHeaders()->get('ambiente', MantenedorFolio::AMBIENTE_DEV);

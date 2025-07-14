@@ -91,7 +91,8 @@ $config = [
                         'POST subir-caf' => 'subir-caf',
                         'select' => 'select',
                         'marcar-alerta' => 'marcar-alerta',
-                        'OPTIONS subir-caf' => 'options'
+                        'OPTIONS subir-caf' => 'options',
+                        'OPTIONS' => 'options'
                     ]
                 ],
                 'GET facturas/<id>/procesada' => 'facturas/procesada',
@@ -102,10 +103,12 @@ $config = [
     'as corsFilter' => [
         'class' => \yii\filters\Cors::class,
         'cors' => [
-            'Origin' => ['*'],
+            'Origin' => ['http://localhost:4200', 'http://127.0.0.1:4200', 'http://localhost:3000', '*'],
             'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             'Access-Control-Request-Headers' => ['*'],
             'Access-Control-Expose-Headers' => ['*'],
+            'Access-Control-Allow-Credentials' => true,
+            'Access-Control-Max-Age' => 86400,
         ],
     ],
     // 'as Authenticator' => [
