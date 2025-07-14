@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CORS Real</title>
+</head>
+<body>
+    <h1>Test CORS desde http://sistema.ayalarepuestos.cl</h1>
+    <button onclick="testCors()">Test CORS Request</button>
+    <div id="result"></div>
+
+    <script>
+        async function testCors() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                // Primera prueba: OPTIONS request
+                resultDiv.innerHTML = '<p>Enviando petición OPTIONS...</p>';
+                
+                const optionsResponse = await fetch('http://sistema.ayalarepuestos.cl/sii-chile/api/folio/mantenedor/subir-caf', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type, ambiente'
+                    }
+                });
+                
+                resultDiv.innerHTML += `
+                    <h3>OPTIONS Response:</h3>
+                    <p>Status: ${optionsResponse.status}</p>
+                    <p>Headers:</p>
+                    <ul>
+                        <li>Access-Control-Allow-Origin: ${optionsResponse.headers.get('Access-Control-Allow-Origin') || 'No presente'}</li>
+                        <li>Access-Control-Allow-Methods: ${optionsResponse.headers.get('Access-Control-Allow-Methods') || 'No presente'}</li>
+                        <li>Access-Control-Allow-Headers: ${optionsResponse.headers.get('Access-Control-Allow-Headers') || 'No presente'}</li>
+                        <li>Access-Control-Allow-Credentials: ${optionsResponse.headers.get('Access-Control-Allow-Credentials') || 'No presente'}</li>
+                    </ul>
+                `;
+                
+                // Segunda prueba: POST request
+                resultDiv.innerHTML += '<p>Enviando petición POST...</p>';
+                
+                const postResponse = await fetch('http://sistema.ayalarepuestos.cl/sii-chile/api/folio/mantenedor/subir-caf', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ambiente': 'DEV'
+                    },
+                    body: JSON.stringify({
+                        test: 'data'
+                    })
+                });
+                
+                const postData = await postResponse.text();
+                
+                resultDiv.innerHTML += `
+                    <h3>POST Response:</h3>
+                    <p>Status: ${postResponse.status}</p>
+                    <p>Response: ${postData}</p>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error('Error completo:', error);
+            }
+        }
+        
+        // Mostrar información del origen actual
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.innerHTML += `
+                <div style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+                    <strong>Información del origen actual:</strong><br>
+                    Origin: ${window.location.origin}<br>
+                    Protocol: ${window.location.protocol}<br>
+                    Host: ${window.location.host}<br>
+                    Href: ${window.location.href}
+                </div>
+            ` + document.body.innerHTML;
+        });
+    </script>
+</body>
+</html>

@@ -24,35 +24,14 @@ class MantenedorFolioController extends \yii\rest\Controller
     {
         $behaviors = parent::behaviors();
         
-        // Configurar CORS específicamente para este controlador
+        // Configurar CORS específicamente para este controlador - versión simplificada
         $behaviors['corsFilter'] = [
             'class' => \yii\filters\Cors::class,
             'cors' => [
-                'Origin' => function($origin) {
-                    $allowedOrigins = [
-                        'http://localhost:4200', 
-                        'http://127.0.0.1:4200',
-                        'https://sistema.ayalarepuestos.cl',
-                        'http://sistema.ayalarepuestos.cl',
-                        'https://www.sistema.ayalarepuestos.cl',
-                        'http://www.sistema.ayalarepuestos.cl'
-                    ];
-                    
-                    // Verificar origins exactos
-                    if (in_array($origin, $allowedOrigins)) {
-                        return $origin;
-                    }
-                    
-                    // Verificar si es un subdominio de ayalarepuestos.cl
-                    if (preg_match('/^https?:\/\/.*\.ayalarepuestos\.cl$/', $origin)) {
-                        return $origin;
-                    }
-                    
-                    return false;
-                },
+                'Origin' => ['*'], // Temporalmente permitir todo para debugging
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
                 'Access-Control-Request-Headers' => ['*'],
-                'Access-Control-Allow-Credentials' => true,
+                'Access-Control-Allow-Credentials' => false, // Desactivar credentials temporalmente
                 'Access-Control-Max-Age' => 86400,
             ],
         ];
@@ -69,49 +48,29 @@ class MantenedorFolioController extends \yii\rest\Controller
         $request = Yii::$app->request;
         
         // Obtener el origin de la petición
-        $origin = $request->headers->get('Origin');
+        $origin = $request->headers->get('Origin', 'No origin header');
         
-        // Función para verificar si el origin está permitido
-        $isOriginAllowed = function($origin) {
-            $allowedOrigins = [
-                'http://localhost:4200',
-                'http://127.0.0.1:4200',
-                'https://sistema.ayalarepuestos.cl',
-                'http://sistema.ayalarepuestos.cl',
-                'https://www.sistema.ayalarepuestos.cl',
-                'http://www.sistema.ayalarepuestos.cl'
-            ];
-            
-            // Verificar origins exactos
-            if (in_array($origin, $allowedOrigins)) {
-                return true;
-            }
-            
-            // Verificar si es un subdominio de ayalarepuestos.cl
-            if (preg_match('/^https?:\/\/.*\.ayalarepuestos\.cl$/', $origin)) {
-                return true;
-            }
-            
-            return false;
-        };
-        
-        // Log para debug - ver qué origin está llegando
+        // Log detallado para debug
+        Yii::info("=== DEBUG CORS ===", 'cors-debug');
         Yii::info("Origin recibido: " . $origin, 'cors-debug');
+        Yii::info("Method: " . $request->method, 'cors-debug');
+        Yii::info("URL: " . $request->url, 'cors-debug');
         
-        // Verificar si el origin está permitido
-        if ($isOriginAllowed($origin)) {
-            $response->headers->set('Access-Control-Allow-Origin', $origin);
-            Yii::info("Origin permitido: " . $origin, 'cors-debug');
-        } else {
-            Yii::warning("Origin NO permitido: " . $origin, 'cors-debug');
-        }
-        
+        // Configurar headers CORS manualmente para debugging
         $response->statusCode = 200;
+        $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, ambiente');
-        $response->headers->set('Access-Control-Allow-Credentials', 'true');
         $response->headers->set('Access-Control-Max-Age', '86400');
-        return '';
+        
+        Yii::info("Headers configurados manualmente", 'cors-debug');
+        
+        return [
+            'status' => 'OK',
+            'origin' => $origin,
+            'method' => $request->method,
+            'timestamp' => date('Y-m-d H:i:s')
+        ];
     }
 
     public function getAmbiente()
