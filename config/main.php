@@ -108,7 +108,9 @@ $config = [
                 'http://127.0.0.1:4200', 
                 'http://localhost:3000',
                 'https://sistema.ayalarepuestos.cl',
-                'http://sistema.ayalarepuestos.cl'
+                'http://sistema.ayalarepuestos.cl',
+                'https://www.sistema.ayalarepuestos.cl',
+                'http://www.sistema.ayalarepuestos.cl'
             ],
             'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             'Access-Control-Request-Headers' => ['*'],

@@ -28,12 +28,28 @@ class MantenedorFolioController extends \yii\rest\Controller
         $behaviors['corsFilter'] = [
             'class' => \yii\filters\Cors::class,
             'cors' => [
-                'Origin' => [
-                    'http://localhost:4200', 
-                    'http://127.0.0.1:4200',
-                    'https://sistema.ayalarepuestos.cl',
-                    'http://sistema.ayalarepuestos.cl'
-                ],
+                'Origin' => function($origin) {
+                    $allowedOrigins = [
+                        'http://localhost:4200', 
+                        'http://127.0.0.1:4200',
+                        'https://sistema.ayalarepuestos.cl',
+                        'http://sistema.ayalarepuestos.cl',
+                        'https://www.sistema.ayalarepuestos.cl',
+                        'http://www.sistema.ayalarepuestos.cl'
+                    ];
+                    
+                    // Verificar origins exactos
+                    if (in_array($origin, $allowedOrigins)) {
+                        return $origin;
+                    }
+                    
+                    // Verificar si es un subdominio de ayalarepuestos.cl
+                    if (preg_match('/^https?:\/\/.*\.ayalarepuestos\.cl$/', $origin)) {
+                        return $origin;
+                    }
+                    
+                    return false;
+                },
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
                 'Access-Control-Request-Headers' => ['*'],
                 'Access-Control-Allow-Credentials' => true,
@@ -54,16 +70,40 @@ class MantenedorFolioController extends \yii\rest\Controller
         
         // Obtener el origin de la petición
         $origin = $request->headers->get('Origin');
-        $allowedOrigins = [
-            'http://localhost:4200',
-            'http://127.0.0.1:4200',
-            'https://sistema.ayalarepuestos.cl',
-            'http://sistema.ayalarepuestos.cl'
-        ];
+        
+        // Función para verificar si el origin está permitido
+        $isOriginAllowed = function($origin) {
+            $allowedOrigins = [
+                'http://localhost:4200',
+                'http://127.0.0.1:4200',
+                'https://sistema.ayalarepuestos.cl',
+                'http://sistema.ayalarepuestos.cl',
+                'https://www.sistema.ayalarepuestos.cl',
+                'http://www.sistema.ayalarepuestos.cl'
+            ];
+            
+            // Verificar origins exactos
+            if (in_array($origin, $allowedOrigins)) {
+                return true;
+            }
+            
+            // Verificar si es un subdominio de ayalarepuestos.cl
+            if (preg_match('/^https?:\/\/.*\.ayalarepuestos\.cl$/', $origin)) {
+                return true;
+            }
+            
+            return false;
+        };
+        
+        // Log para debug - ver qué origin está llegando
+        Yii::info("Origin recibido: " . $origin, 'cors-debug');
         
         // Verificar si el origin está permitido
-        if (in_array($origin, $allowedOrigins)) {
+        if ($isOriginAllowed($origin)) {
             $response->headers->set('Access-Control-Allow-Origin', $origin);
+            Yii::info("Origin permitido: " . $origin, 'cors-debug');
+        } else {
+            Yii::warning("Origin NO permitido: " . $origin, 'cors-debug');
         }
         
         $response->statusCode = 200;
