@@ -103,7 +103,13 @@ $config = [
     'as corsFilter' => [
         'class' => \yii\filters\Cors::class,
         'cors' => [
-            'Origin' => ['http://localhost:4200', 'http://127.0.0.1:4200', 'http://localhost:3000', '*'],
+            'Origin' => [
+                'http://localhost:4200', 
+                'http://127.0.0.1:4200', 
+                'http://localhost:3000',
+                'https://sistema.ayalarepuestos.cl',
+                'http://sistema.ayalarepuestos.cl'
+            ],
             'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             'Access-Control-Request-Headers' => ['*'],
             'Access-Control-Expose-Headers' => ['*'],

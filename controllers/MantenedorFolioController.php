@@ -28,7 +28,12 @@ class MantenedorFolioController extends \yii\rest\Controller
         $behaviors['corsFilter'] = [
             'class' => \yii\filters\Cors::class,
             'cors' => [
-                'Origin' => ['http://localhost:4200', 'http://127.0.0.1:4200'],
+                'Origin' => [
+                    'http://localhost:4200', 
+                    'http://127.0.0.1:4200',
+                    'https://sistema.ayalarepuestos.cl',
+                    'http://sistema.ayalarepuestos.cl'
+                ],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
                 'Access-Control-Request-Headers' => ['*'],
                 'Access-Control-Allow-Credentials' => true,
@@ -45,8 +50,23 @@ class MantenedorFolioController extends \yii\rest\Controller
     public function actionOptions()
     {
         $response = Yii::$app->response;
+        $request = Yii::$app->request;
+        
+        // Obtener el origin de la petición
+        $origin = $request->headers->get('Origin');
+        $allowedOrigins = [
+            'http://localhost:4200',
+            'http://127.0.0.1:4200',
+            'https://sistema.ayalarepuestos.cl',
+            'http://sistema.ayalarepuestos.cl'
+        ];
+        
+        // Verificar si el origin está permitido
+        if (in_array($origin, $allowedOrigins)) {
+            $response->headers->set('Access-Control-Allow-Origin', $origin);
+        }
+        
         $response->statusCode = 200;
-        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:4200');
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, ambiente');
         $response->headers->set('Access-Control-Allow-Credentials', 'true');
