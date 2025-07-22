@@ -44,12 +44,25 @@ class SubirCaf extends Model
         );
         if (!$this->_folio->check()) {
             $this->addError($attr, "El folio es inválido");
+            return;
         }
         Yii::error($this->_folio->getDesde(), 'desde');
         Yii::error($this->_folio->getHasta(), 'getHasta');
         Yii::error($this->_folio->getFechaAutorizacion(), 'getFechaAutorizacion');
         Yii::error($this->_folio->getMesesAutorizacion(), 'getMesesAutorizacion');
         Yii::error($this->_folio->getTipo(), 'getTipo');
+
+        $mantenedor = $this->getMantenedor();
+        $existeCafReserva = $mantenedor->getSiguienteCaf()->exists();
+        if ($existeCafReserva) {
+            $this->addError($attr, "Ya existe un CAF de reserva para este mantenedor");
+            return;
+        }
+        $cafEnUso = $mantenedor->cafEnUso;
+        if ($cafEnUso && $cafEnUso->hasta > $this->_folio->getDesde()) {
+            $this->addError($attr, "El folio ingresado no es válido, ya que el rango de folios no es consecutivo con el último CAF utilizado.");
+            return;
+        }
     }
 
     public function subir()
@@ -63,7 +76,7 @@ class SubirCaf extends Model
         $model->meses_autorizados = (int) $this->_folio->getMesesAutorizacion();
         $model->url_xml = $this->_fileName;
         $model->estado = $mantenedor->cafEnUso ? Caf::ESTADO_DISPONIBLE : Caf::ESTADO_EN_USO;
-        if($model->save()){
+        if ($model->save()) {
             if (!$mantenedor->cafEnUso) {
                 $mantenedor->siguiente_folio = $model->desde;
             }
@@ -74,6 +87,9 @@ class SubirCaf extends Model
         Yii::error($model->errors);
     }
 
+    /**    
+     * @return MantenedorFolio
+     */
     public function getMantenedor()
     {
         static $mantenedor;
