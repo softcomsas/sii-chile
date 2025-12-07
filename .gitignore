@@ -36,7 +36,6 @@ certificado
 /config/main-local.php
 /config/params-local.php
 api/index.php
-composer.lock
 api/index-test.php
 api/robots.txt
 yii
