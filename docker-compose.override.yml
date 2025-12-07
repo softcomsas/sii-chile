@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    image: sii-chile:latest
+    ports:
+      - "8000:80"
+    volumes:
+      # Archivos de configuración (REQUERIDOS)
+      - ./config/main-local.php:/app/config/main-local.php:ro
+      - ./config/params-local.php:/app/config/params-local.php:ro
+      # Directorios persistentes
+      - ./runtime:/app/runtime
+      - ./upload:/app/upload
+      - ./web/assets:/app/web/assets
+    environment:
+      - YII_DEBUG=0
+      - YII_ENV=prod
+    restart: unless-stopped

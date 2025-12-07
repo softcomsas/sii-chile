@@ -1,0 +1,78 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Documentation
+README.md
+LICENSE.md
+*.md
+
+# Development tools
+Vagrantfile
+codeception.yml
+
+# Tests
+tests
+codeception.yml
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Archivos de configuración local (información sensible)
+# Los templates .template SÍ se copian a la imagen
+config/main-local.php
+config/params-local.php
+
+# Init scripts (desarrollo)
+init
+init.bat
+
+# Requirements checker
+requirements.php
+
+# Runtime files (se crean en el contenedor)
+runtime/*
+!runtime/.gitkeep
+
+# Assets temporales (generados en runtime)
+web/assets/*
+!web/assets/.gitkeep
+
+# Directorio antiguo API (ya migrado a /web)
+api/
+
+# Upload temporal
+upload/*
+!upload/.gitkeep
+
+# Node modules (si existen)
+node_modules
+npm-debug.log
+
+# Composer (no copiar dependencias, se instalan en el build)
+vendor/
+composer.phar
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+test-cors.html
+test-cors-real.html
+frontend-example.js
