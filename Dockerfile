@@ -36,11 +36,11 @@ RUN mkdir -p runtime web/assets upload \
 
 # Variables de entorno
 ENV YII_DEBUG=0 \
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
+    YII_ENV=prod
+
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
     CMD curl -f http://localhost/ || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"]
