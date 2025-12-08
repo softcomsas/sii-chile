@@ -1,0 +1,64 @@
+# Ejemplo de docker-compose con proxy Traefik
+
+version: '3.8'
+
+services:
+  sii-api:
+    image: ghcr.io/softcomsas/sii-chile:latest
+    container_name: sii-api
+    environment:
+      - YII_ENV=prod
+      - YII_DEBUG=0
+      - DB_DSN=mysql:host=mysql;dbname=sii_prod
+      - DB_USER=sii_user
+      - DB_PASS=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_PORT=587
+      - SMTP_ENCRYPTION=tls
+    labels:
+      # Traefik labels
+      - "traefik.enable=true"
+      - "traefik.http.routers.sii-api.rule=Host(`api.tudominio.com`)"
+      - "traefik.http.routers.sii-api.entrypoints=websecure"
+      - "traefik.http.routers.sii-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.sii-api.loadbalancer.server.port=80"
+      
+      # Middleware para headers
+      - "traefik.http.middlewares.sii-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.sii-api.middlewares=sii-headers"
+      
+      # Rate limiting (opcional)
+      - "traefik.http.middlewares.sii-ratelimit.ratelimit.average=100"
+      - "traefik.http.middlewares.sii-ratelimit.ratelimit.burst=50"
+    networks:
+      - proxy
+      - backend
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: sii-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=sii_prod
+      - MYSQL_USER=sii_user
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
+  backend:
+    internal: true
+
+volumes:
+  mysql_data:

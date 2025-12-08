@@ -1,5 +1,40 @@
 # Guía de Docker - SII Chile
 
+## 📁 Estructura de Archivos Docker
+
+```
+docker/
+├── README.md              # Esta documentación
+├── Makefile              # Comandos útiles (make build, make run, etc.)
+├── docker-entrypoint.sh  # Script de inicio con migraciones
+├── apache/
+│   └── remoteip.conf     # Configuración para proxy inverso
+└── examples/
+    ├── nginx-proxy.conf           # Ejemplo de Nginx como proxy
+    └── docker-compose.proxy.yml   # Ejemplo con Traefik
+```
+
+## 🚀 Inicio Rápido con Makefile
+
+Desde la raíz del proyecto:
+
+```bash
+# Ver comandos disponibles
+make -f docker/Makefile help
+
+# Construir imagen
+make -f docker/Makefile build
+
+# Ejecutar contenedor de prueba
+make -f docker/Makefile run
+
+# Ver logs
+make -f docker/Makefile logs
+
+# Reconstruir y ejecutar
+make -f docker/Makefile rebuild
+```
+
 ## 📦 Construcción de la Imagen
 
 ### Construcción Local
@@ -279,6 +314,49 @@ docker exec -it sii-chile-app ping db
 - ⚠️ Los permisos 777 en `runtime/upload/web/assets` son para desarrollo; ajusta según necesidad en producción
 - ⚠️ Protege tu archivo `.env` y no lo commitees al repositorio
 
+## 🌐 Uso con Proxy Inverso
+
+### Configuración Incluida
+
+La imagen incluye soporte para proxy inverso (Nginx, Traefik, Apache) con:
+
+- **RemoteIP Module**: Captura la IP real del cliente desde headers `X-Forwarded-For`
+- **Trusted Networks**: Configurado para redes privadas Docker/Kubernetes
+- **Security Headers**: Headers CORS y seguridad ya configurados
+
+Ver configuración en `docker/apache/remoteip.conf`.
+
+### Ejemplos de Configuración
+
+En `docker/examples/` encontrarás:
+
+- **nginx-proxy.conf**: Configuración completa de Nginx como proxy inverso
+- **docker-compose.proxy.yml**: Ejemplo con Traefik + MySQL + SSL automático
+
+#### Uso Rápido con Nginx
+
+```bash
+# 1. Copiar ejemplo
+cp docker/examples/nginx-proxy.conf /etc/nginx/sites-available/sii-api
+
+# 2. Editar dominio y certificados
+nano /etc/nginx/sites-available/sii-api
+
+# 3. Activar
+ln -s /etc/nginx/sites-available/sii-api /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+
+# 4. Ejecutar contenedor (puerto interno 8080)
+docker run -d --name sii-api -p 8080:80 sii-chile:latest
+```
+
+#### Uso con Traefik
+
+```bash
+cd docker/examples
+docker-compose -f docker-compose.proxy.yml up -d
+```
+
 ## 🏗️ CI/CD
 
 La imagen se construye automáticamente en GitHub Actions cuando:
@@ -292,3 +370,9 @@ ghcr.io/softcomsas/sii-chile:latest
 ghcr.io/softcomsas/sii-chile:main
 ghcr.io/softcomsas/sii-chile:v1.0.0
 ```
+
+## 📚 Recursos Adicionales
+
+- [Documentación Yii2](https://www.yiiframework.com/doc/guide/2.0/en)
+- [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
+- [Apache RemoteIP Module](https://httpd.apache.org/docs/2.4/mod/mod_remoteip.html)

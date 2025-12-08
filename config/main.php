@@ -29,6 +29,12 @@ $config = [
             ],
             'enableCsrfValidation'   => false,
             'enableCookieValidation' => false,
+            // Configuración para proxy inverso
+            'trustedHosts' => [
+                '10.0.0.0/8',     // Redes privadas Docker/Kubernetes
+                '172.16.0.0/12',
+                '192.168.0.0/16',
+            ],
         ],
         'response' => [
             'class' => 'yii\web\Response',

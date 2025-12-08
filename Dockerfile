@@ -7,7 +7,14 @@ RUN apt-get update && apt-get install -y curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Habilitar módulos de Apache
-RUN a2enmod rewrite headers
+RUN a2enmod rewrite headers remoteip
+
+# Copiar configuración de RemoteIP
+COPY docker/apache/remoteip.conf /etc/apache2/conf-available/
+RUN a2enconf remoteip
+
+# Suprimir warning de ServerName
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Copiar composer files y instalar dependencias
 COPY composer.json composer.lock ./
@@ -27,7 +34,7 @@ COPY environments/prod/config/main-local.php config/main-local.php
 COPY environments/prod/config/params-local.php config/params-local.php
 
 # Copiar y configurar entrypoint
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY docker/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Crear directorios y establecer permisos
