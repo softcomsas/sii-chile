@@ -39,3 +39,4 @@ api/index.php
 api/index-test.php
 api/robots.txt
 yii
+/web/assets
