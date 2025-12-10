@@ -20,9 +20,9 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 COPY composer.json composer.lock ./
 RUN composer config --no-plugins allow-plugins.yiisoft/yii2-composer true \
     && composer install \
-    --no-dev \
-    --optimize-autoloader \
-    --classmap-authoritative \
+#    --no-dev \
+#    --optimize-autoloader \
+#    --classmap-authoritative \
     && composer clear-cache
 
 # Copiar el código de la aplicación
