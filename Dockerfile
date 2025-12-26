@@ -3,7 +3,13 @@ FROM yiisoftware/yii2-php:7.4-apache
 WORKDIR /app
 
 # Instalar dependencias del sistema (solo lo necesario)
-RUN apt-get update && apt-get install -y curl cron \
+RUN apt-get update && apt-get install -y \
+    curl \
+    cron \
+    libc-client-dev \
+    libkrb5-dev \
+    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
+    && docker-php-ext-install imap \
     && rm -rf /var/lib/apt/lists/*
 
 # Habilitar módulos de Apache
