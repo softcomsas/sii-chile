@@ -3,7 +3,7 @@ FROM yiisoftware/yii2-php:7.4-apache
 WORKDIR /app
 
 # Instalar dependencias del sistema (solo lo necesario)
-RUN apt-get update && apt-get install -y curl \
+RUN apt-get update && apt-get install -y curl cron \
     && rm -rf /var/lib/apt/lists/*
 
 # Habilitar módulos de Apache
@@ -32,6 +32,12 @@ COPY . .
 # (usa getenv() para leer variables de entorno en runtime)
 COPY environments/prod/config/main-local.php config/main-local.php
 COPY environments/prod/config/params-local.php config/params-local.php
+
+# Copiar y configurar crontab
+COPY docker/crontab /etc/cron.d/sii-cron
+RUN chmod 0644 /etc/cron.d/sii-cron \
+    && crontab /etc/cron.d/sii-cron \
+    && touch /var/log/cron.log
 
 # Copiar y configurar entrypoint
 COPY docker/docker-entrypoint.sh /usr/local/bin/

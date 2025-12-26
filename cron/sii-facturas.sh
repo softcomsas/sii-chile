@@ -1,3 +1,4 @@
 #!/bin/bash
-php /home/sistema.ayalarepuestos.cl/public_html/sii-chile/yii cron/process
+# Script para ejecutar en el contenedor Docker
+php /app/yii cron/process
 

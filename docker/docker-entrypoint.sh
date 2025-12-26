@@ -12,6 +12,15 @@ else
     exit 1
 fi
 
+echo "⏰ Iniciando servicio cron..."
+service cron start
+
+if [ $? -eq 0 ]; then
+    echo "✅ Servicio cron iniciado correctamente"
+else
+    echo "❌ Error al iniciar servicio cron"
+fi
+
 echo "🌐 Iniciando servidor Apache..."
 
 # Ejecutar el comando original de la imagen base
