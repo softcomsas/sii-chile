@@ -12,13 +12,14 @@ else
     exit 1
 fi
 
-echo "⏰ Iniciando servicio cron..."
-service cron start
+echo "⏰ Iniciando daemon cron..."
+cron
 
 if [ $? -eq 0 ]; then
-    echo "✅ Servicio cron iniciado correctamente"
+    echo "✅ Daemon cron iniciado correctamente"
 else
-    echo "❌ Error al iniciar servicio cron"
+    echo "❌ Error al iniciar daemon cron"
+    exit 1
 fi
 
 echo "🌐 Iniciando servidor Apache..."
