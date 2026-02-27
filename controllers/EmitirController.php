@@ -26,7 +26,7 @@ class EmitirController extends Controller
         Yii::$app->sii->setEmpresa($rut_empresa);
         Yii::$app->sii->setAmbiente(Yii::$app->params['SII.AMBIENTE']);
 
-        $registros = FacturaEmitida::find()
+        $query = FacturaEmitida::find()
             ->where(
                 [
                     'rut_empresa' => $rut_empresa,
@@ -34,13 +34,34 @@ class EmitirController extends Controller
                     'estado' => FacturaEmitida::ESTADO_CREADO
                 ]
             )
-            ->orderBy(['tipo' => SORT_ASC])
-            ->all();
+            ->orderBy(['tipo' => SORT_ASC]);
 
-        foreach ($registros as $row) {
-            Yii::$app->sii->agregar($row->getDte());
+        $resultados = [];
+        $totalProcesados = 0;
+
+        // Procesar en lotes de 100 registros
+        foreach ($query->batch(100) as $lote) {
+            Yii::$app->sii->setEmpresa($rut_empresa);
+            Yii::$app->sii->setAmbiente(Yii::$app->params['SII.AMBIENTE']);
+
+            foreach ($lote as $row) {
+                Yii::$app->sii->agregar($row->getDte());
+            }
+
+            $resultado = Yii::$app->sii->send();
+            $resultados[] = $resultado;
+            $totalProcesados += count($lote);
+
+            // Esperar 2 segundos entre cada lote para no saturar el servidor
+            sleep(2);
         }
-        return Yii::$app->sii->send();
+
+        return [
+            'success' => true,
+            'total_procesados' => $totalProcesados,
+            'lotes' => count($resultados),
+            'resultados' => $resultados
+        ];
     }
     public function actionEstado($rut_empresa = '77321084-5', $trackid)
     {
