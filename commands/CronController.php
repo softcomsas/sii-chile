@@ -45,4 +45,48 @@ class CronController extends Controller
 
         return ExitCode::OK;
     }
+
+    public function actionPendientes($rut_empresa = '77321084-5')
+    {
+        echo "Comienza procesamiento de pendientes para empresa: {$rut_empresa}\n";
+
+        Yii::$app->sii->setEmpresa($rut_empresa);
+        Yii::$app->sii->setAmbiente(Yii::$app->params['SII.AMBIENTE']);
+
+        $query = \app\models\FacturaEmitida::find()
+            ->where([
+                'rut_empresa' => $rut_empresa,
+                'tipo' => [39, 61],
+                'estado' => \app\models\FacturaEmitida::ESTADO_CREADO
+            ])
+            ->orderBy(['tipo' => SORT_ASC]);
+
+        $totalProcesados = 0;
+        $loteNumero = 0;
+        
+        // Procesar en lotes de 100 registros
+        foreach ($query->batch(100) as $lote) {
+            $loteNumero++;
+            echo "Procesando lote #{$loteNumero} (" . count($lote) . " registros)...\n";
+            
+            Yii::$app->sii->setEmpresa($rut_empresa);
+            Yii::$app->sii->setAmbiente(Yii::$app->params['SII.AMBIENTE']);
+            
+            foreach ($lote as $row) {
+                Yii::$app->sii->agregar($row->getDte());
+            }
+            
+            $resultado = Yii::$app->sii->send();
+            $totalProcesados += count($lote);
+            
+            echo "Lote #{$loteNumero} enviado. Total procesados: {$totalProcesados}\n";
+            
+            // Esperar 2 segundos entre cada lote para no saturar el servidor
+            sleep(2);
+        }
+
+        echo "Proceso completado. Total de registros procesados: {$totalProcesados}\n";
+
+        return ExitCode::OK;
+    }
 }
