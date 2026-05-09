@@ -20,6 +20,9 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
+        'sii' => [
+            'class' => 'app\components\EnvioDte',
+        ],
         'log' => [
             'targets' => [
                 [
