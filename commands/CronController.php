@@ -46,9 +46,9 @@ class CronController extends Controller
         return ExitCode::OK;
     }
 
-    public function actionPendientes($rut_empresa = '77321084-5', $ambiente = null)
+    public function actionPendientes($rut_empresa = '77321084-5')
     {
-        $ambiente = $ambiente ?? Yii::$app->params['SII.AMBIENTE'];
+        $ambiente = getenv('SII_AMBIENTE') ?: Yii::$app->params['SII.AMBIENTE'] ?? 'PROD';
 
         echo "Comienza procesamiento de pendientes para empresa: {$rut_empresa} (ambiente: {$ambiente})\n";
 
