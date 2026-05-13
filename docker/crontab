@@ -2,7 +2,7 @@
 */5 * * * * root cd /app && /usr/local/bin/php yii cron/process >> /var/log/cron.log 2>&1
 
 # Ejecutar llamada a pendientes una vez al día (a medianoche)
-0 0 * * * root cd /app && /usr/local/bin/php yii cron/pendientes >> /var/log/cron-pendientes.log 2>&1
+0 0 * * * root curl -s "https://sii.autoahorro.cl/emitir/pendientes?ambiente=PROD" >> /var/log/cron-pendientes.log 2>&1
 
 # Línea vacía requerida al final del archivo crontab
 
