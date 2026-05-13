@@ -131,7 +131,14 @@ class FacturaEmitida extends \yii\db\ActiveRecord
     }
     public function getDte()
     {
-        $xml = file_get_contents($this->path . $this->url_xml);
+        if (!$this->url_xml) {
+            throw new \Exception("Registro id={$this->id} no tiene archivo XML asociado (url_xml es null)", 1);
+        }
+        $filePath = $this->path . $this->url_xml;
+        if (!file_exists($filePath)) {
+            throw new \Exception("Archivo XML no encontrado: {$filePath}", 1);
+        }
+        $xml = file_get_contents($filePath);
         $dte = new Dte($xml);
         if ($dte->getDatos()){
             return $dte;

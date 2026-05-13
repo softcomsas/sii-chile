@@ -46,12 +46,14 @@ class CronController extends Controller
         return ExitCode::OK;
     }
 
-    public function actionPendientes($rut_empresa = '77321084-5')
+    public function actionPendientes($rut_empresa = '77321084-5', $ambiente = null)
     {
-        echo "Comienza procesamiento de pendientes para empresa: {$rut_empresa}\n";
+        $ambiente = $ambiente ?? Yii::$app->params['SII.AMBIENTE'];
+
+        echo "Comienza procesamiento de pendientes para empresa: {$rut_empresa} (ambiente: {$ambiente})\n";
 
         Yii::$app->sii->setEmpresa($rut_empresa);
-        Yii::$app->sii->setAmbiente(Yii::$app->params['SII.AMBIENTE']);
+        Yii::$app->sii->setAmbiente($ambiente);
 
         $query = \app\models\FacturaEmitida::find()
             ->where([
@@ -70,10 +72,15 @@ class CronController extends Controller
             echo "Procesando lote #{$loteNumero} (" . count($lote) . " registros)...\n";
 
             Yii::$app->sii->setEmpresa($rut_empresa);
-            Yii::$app->sii->setAmbiente(Yii::$app->params['SII.AMBIENTE']);
+            Yii::$app->sii->setAmbiente($ambiente);
 
             foreach ($lote as $row) {
-                Yii::$app->sii->agregar($row->getDte());
+                try {
+                    Yii::$app->sii->agregar($row->getDte());
+                } catch (\Exception $e) {
+                    echo "  [WARN] Omitiendo id={$row->id} folio={$row->folio}: " . $e->getMessage() . "\n";
+                    Yii::warning("Pendientes: omitiendo id={$row->id}: " . $e->getMessage(), __METHOD__);
+                }
             }
 
             $resultado = Yii::$app->sii->send();

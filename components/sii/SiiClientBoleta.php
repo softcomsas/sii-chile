@@ -25,7 +25,10 @@ class SiiClientBoleta extends Component
 
     public function __construct($config = [])
     {
-        $this->produccion = Yii::$app->params['SII.AMBIENTE'] == 'PROD' ? 1 : 0;
+        // produccion puede ser pasado como parámetro; si no, se lee de los params globales
+        if (!isset($config['produccion'])) {
+            $config['produccion'] = Yii::$app->params['SII.AMBIENTE'] == 'PROD' ? 1 : 0;
+        }
         parent::__construct($config);
     }
 

@@ -47,7 +47,9 @@ class EnvioDte extends Component
             $this->setAmbienteDesarrollo();
         }
         $result = [];
-        foreach ($this->dtes as $tipo => $dtes) {
+        $dtesParaEnviar = $this->dtes;
+        $this->dtes = [];
+        foreach ($dtesParaEnviar as $tipo => $dtes) {
             switch ($tipo) {
                 case 39:
                     $result[$tipo] = $this->sendBoleta(array_values($dtes));
@@ -118,7 +120,7 @@ class EnvioDte extends Component
 
         //file_put_contents('C:\xampp\htdocs\sii-chile\upload\EnvioBOLETA.xml', $xml);
 
-        $client = new SiiClientBoleta();
+        $client = new SiiClientBoleta(['produccion' => $this->ambiente === 'PROD' ? 1 : 0]);
         $result = $client->enviarBoleta($this->rut_empresa, $this->rut_empresa, $xml);
 
         Yii::info($result, 'Envío Boleta Result');
